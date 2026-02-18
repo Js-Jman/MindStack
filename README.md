@@ -1,36 +1,210 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎓 Learning Management System (LMS)
 
-## Getting Started
+A full-featured learning platform built with modern web technologies that enables students to enroll in courses, access learning materials, complete quizzes and assignments, and track their progress — while empowering instructors and administrators to manage the entire learning ecosystem efficiently.
 
-First, run the development server:
+---
+
+## 🚀 Tech Stack
+
+✔ **Framework:** Next.js (Both Frontend & Backend)  
+✔ **Styling:** Tailwind CSS  
+✔ **UI Components:** shadcn/ui  
+✔ **Database:** MySQL  
+✔ **Language:** TypeScript  
+
+---
+
+## ✨ Core Features
+
+### 👩‍🎓 Student
+
+➤ User Registration & Login  
+➤ Browse Available Courses  
+➤ Enroll in Courses  
+➤ Access Lessons & Study Materials  
+➤ Attempt Quizzes  
+➤ Submit Assignments  
+➤ Track Learning Progress  
+➤ Raise Support Tickets  
+
+---
+
+### 👨‍🏫 Instructor
+
+➤ Create & Manage Courses  
+➤ Add Modules & Lessons  
+➤ Upload Learning Materials  
+➤ Create Quizzes & Assignments  
+➤ Review Student Submissions  
+➤ Track Enrollments  
+➤ Monitor Student Progress  
+➤ Raise Support Tickets  
+
+---
+
+### 🛡 Admin
+
+➤ Dedicated Admin Dashboard  
+➤ Full User Management (Students & Instructors)  
+➤ Course Moderation & Control  
+➤ Manage Enrollments  
+➤ Monitor Platform Activity  
+➤ Review & Resolve Reported Issues / Tickets  
+➤ System-wide Control & Oversight  
+
+The admin panel acts as the control center of the platform, ensuring smooth operation and maintaining quality across the system.
+
+---
+
+## 🏗 Project Architecture
+
+The project follows a modular and scalable architecture structure:
+
+
+
+```
+app/              → Routing & Layouts (Next.js)
+components/       → Reusable UI Components
+services/         → Business Logic Layer
+repositories/     → Database Access Layer
+lib/              → Utilities & Config
+hooks/            → Custom React Hooks
+types/            → TypeScript Types
+prisma/           → Database Schema
+middleware.ts     → Role-based Route Protection
+```
+
+### Architectural Principles
+
+- Clear separation of concerns
+- Feature-based modular structure
+- Service → Repository → Database flow
+- Role-based access control
+- Reusable UI component system
+
+This ensures maintainability, scalability, and clean code organization.
+
+---
+
+## 🔐 Role-Based Access Control
+
+The system supports:
+
+- Student
+- Instructor
+- Admin
+
+Routes and dashboards are protected using middleware and server-side authorization checks to ensure secure access control.
+
+---
+
+## 📦 Installation & Setup
+
+### 1️⃣ Clone the Repository
+
+```bash
+git clone https://github.com/Js-Jman/MindStack.git
+cd MindStack
+```
+
+---
+
+### 2️⃣ Install Dependencies
+
+```bash
+npm i
+```
+
+---
+
+### 3️⃣ Environment Configuration
+
+Create a `.env` file in the root directory with the following configuration and update your DB details before running the application:
+
+```
+DB_USER=root
+DB_PASS=
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=myappdb
+```
+
+---
+
+### 4️⃣ Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The application will be available at:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 📂 Folder Structure Overview
 
-To learn more about Next.js, take a look at the following resources:
+```
+lms/
+ ├── app/
+ ├── components/
+ ├── services/
+ ├── repositories/
+ ├── hooks/
+ ├── lib/
+ ├── types/
+ ├── prisma/
+ └── middleware.ts
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🎨 UI & Design
 
-## Deploy on Vercel
+✔ Built using Tailwind CSS utility-first styling  
+✔ shadcn/ui for accessible and reusable components  
+✔ Clean dashboard layouts  
+✔ Role-specific UI experiences  
+✔ Responsive design for multiple screen sizes  
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📌 Key Highlights
+
+✔ Modular and scalable folder structure  
+✔ Clean separation of UI and business logic  
+✔ Role-based dashboards  
+✔ Support ticket management system  
+✔ Designed for real-world production patterns  
+
+---
+
+## 👥 Development Team
+
+This project was collaboratively built by a dedicated team of developers.
+
+### 🚀 Core Contributors
+
+🔹 **[Shefali Chopra](https://github.com/ishefalichopra)**  
+🔹 **[AkshayaMuvva](https://github.com/AkshayaMuvva)**  
+🔹 **[BalaPriyadarshini](https://github.com/BalaPriyadarshini)**  
+🔹 **[Vaddi Sri Venkata Bharath](https://github.com/BharathVaddi30)**  
+🔹 **[ABISHEK R](https://github.com/abi23456)**  
+🔹 **[Js](https://github.com/JaisuryaIT)**  
+
+---
+
+### 🤝 Team Collaboration
+
+✔ Modular architecture planning  
+✔ Role-based system design  
+✔ UI/UX consistency  
+✔ Business logic implementation  
+✔ API structure & system flow  
+
+---
+
+⭐ Built with collaboration, clean architecture, and design principles.
