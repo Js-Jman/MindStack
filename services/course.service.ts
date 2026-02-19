@@ -8,7 +8,7 @@ export async function getAllCourses() {
   return await courseRepository.findAll();
 }
 
-export async function getCourseById(id: string) {
+export async function getCourseById(id: number) {
   const course = await courseRepository.findById(id);
 
   if (!course) {
@@ -16,6 +16,17 @@ export async function getCourseById(id: string) {
   }
 
   return course;
+}
+
+export async function getEnrolledCourses(studentId: number) {
+  return await courseRepository.findEnrolledCoursesByStudent(studentId);
+}
+
+export async function searchCourses(query: string) {
+  if (!query || query.trim() === "") {
+    return await courseRepository.findAll();
+  }
+  return await courseRepository.searchCourses(query);
 }
 
 export async function createCourse(data: CreateCourseInput) {
@@ -26,10 +37,7 @@ export async function createCourse(data: CreateCourseInput) {
   return await courseRepository.create(data);
 }
 
-export async function updateCourse(
-  id: string,
-  data: UpdateCourseInput
-) {
+export async function updateCourse(id: number, data: UpdateCourseInput) {
   const updated = await courseRepository.update(id, data);
 
   if (!updated) {
@@ -39,7 +47,7 @@ export async function updateCourse(
   return updated;
 }
 
-export async function deleteCourse(id: string) {
+export async function deleteCourse(id: number) {
   const success = await courseRepository.remove(id);
 
   if (!success) {
