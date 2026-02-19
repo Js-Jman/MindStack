@@ -4,7 +4,7 @@ A full-featured learning platform built with modern web technologies that enable
 
 ---
 
-## 🚀 Tech Stack
+## Tech Stack
 
 ✔ **Framework:** Next.js (Both Frontend & Backend)  
 ✔ **Styling:** Tailwind CSS  
@@ -186,7 +186,7 @@ lms/
 
 This project was collaboratively built by a dedicated team of developers.
 
-### 🚀 Core Contributors
+### Core Contributors
 
 🔹 **[Shefali Chopra](https://github.com/ishefalichopra)**  
 🔹 **[AkshayaMuvva](https://github.com/AkshayaMuvva)**  
