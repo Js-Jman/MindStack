@@ -1,15 +1,273 @@
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
+  engineType = "library"
 }
 
 datasource db {
   provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
+  id              Int       @id @default(autoincrement()) @db.UnsignedInt
+  name            String    @db.VarChar(150)
+  email           String    @unique @db.VarChar(190)
+  password        String    @db.VarChar(255)
+  role            Role
+  emailVerifiedAt DateTime? @map("email_verified_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  enrollments          CourseEnrollment[]
+  courses              Course[]            @relation("InstructorCourses")
+  passwordResetTokens  PasswordResetToken[]
+  quizAttempts         QuizAttempt[]
+  assignmentSubmissions AssignmentSubmission[]
+  lessonProgress       LessonProgress[]
+  courseProgress       CourseProgress[]
+
+  @@index([role])
+  @@map("users")
+}
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt
+  userId    Int      @map("user_id") @db.UnsignedInt
+  token     String   @db.VarChar(255)
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@map("password_reset_tokens")
+}
+
+model Course {
+  id          Int      @id @default(autoincrement()) @db.UnsignedInt
+  instructorId Int     @map("instructor_id") @db.UnsignedInt
+  title       String   @db.VarChar(255)
+  description String   @db.Text
+  thumbnailUrl String? @map("thumbnail_url") @db.VarChar(500)
+  price       Decimal? @db.Decimal(10, 2)
+  isPublished Boolean  @default(false) @map("is_published")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  instructor User             @relation("InstructorCourses", fields: [instructorId], references: [id], onDelete: Cascade)
+  enrollments CourseEnrollment[]
+  sections    CourseSection[]
+  assignments CourseAssignment[]
+  courseProgress CourseProgress[]
+
+  @@index([instructorId])
+  @@index([isPublished])
+  @@map("courses")
+}
+
+model CourseEnrollment {
+  id         Int              @id @default(autoincrement()) @db.UnsignedInt
+  courseId   Int              @map("course_id") @db.UnsignedInt
+  userId     Int              @map("user_id") @db.UnsignedInt
+  status     EnrollmentStatus
+  enrolledAt DateTime         @default(now()) @map("enrolled_at")
+  completedAt DateTime?       @map("completed_at")
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, userId])
+  @@map("course_enrollments")
+}
+
+model CourseSection {
+  id          Int      @id @default(autoincrement()) @db.UnsignedInt
+  courseId    Int      @map("course_id") @db.UnsignedInt
+  title       String   @db.VarChar(255)
+  sectionOrder Int     @map("section_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
+
+  @@unique([courseId, sectionOrder])
+  @@map("course_sections")
+}
+
+model Lesson {
+  id          Int      @id @default(autoincrement()) @db.UnsignedInt
+  sectionId   Int      @map("section_id") @db.UnsignedInt
+  title       String   @db.VarChar(255)
+  lessonOrder Int      @map("lesson_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  section  CourseSection  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  contents LessonContent[]
+  quizzes  Quiz[]
+  progress LessonProgress[]
+
+  @@unique([sectionId, lessonOrder])
+  @@map("lessons")
+}
+
+model LessonContent {
+  id          Int         @id @default(autoincrement()) @db.UnsignedInt
+  lessonId    Int         @map("lesson_id") @db.UnsignedInt
+  contentType ContentType @map("content_type")
+  contentBody String      @map("content_body") @db.LongText
+  contentOrder Int        @map("content_order")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  deletedAt   DateTime?   @map("deleted_at")
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@map("lesson_contents")
+}
+
+model Quiz {
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt
+  lessonId  Int      @map("lesson_id") @db.UnsignedInt
+  title     String   @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  lesson    Lesson        @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  questions QuizQuestion[]
+  attempts  QuizAttempt[]
+
+  @@map("quizzes")
+}
+
+model QuizQuestion {
+  id           Int      @id @default(autoincrement()) @db.UnsignedInt
+  quizId       Int      @map("quiz_id") @db.UnsignedInt
+  questionText String   @map("question_text") @db.Text
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  quiz    Quiz        @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  options QuizOption[]
+
+  @@map("quiz_questions")
+}
+
+model QuizOption {
+  id        Int     @id @default(autoincrement()) @db.UnsignedInt
+  questionId Int    @map("question_id") @db.UnsignedInt
+  optionText String @map("option_text") @db.VarChar(500)
+  isCorrect Boolean @map("is_correct")
+
+  question QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("quiz_options")
+}
+
+model QuizAttempt {
+  id          Int      @id @default(autoincrement()) @db.UnsignedInt
+  quizId      Int      @map("quiz_id") @db.UnsignedInt
+  userId      Int      @map("user_id") @db.UnsignedInt
+  score       Decimal? @db.Decimal(5, 2)
+  startedAt   DateTime @map("started_at")
+  completedAt DateTime? @map("completed_at")
+
+  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("quiz_attempts")
+}
+
+model CourseAssignment {
+  id          Int      @id @default(autoincrement()) @db.UnsignedInt
+  courseId    Int      @map("course_id") @db.UnsignedInt
+  title       String   @db.VarChar(255)
+  description String?  @db.Text
+  dueDate     DateTime? @map("due_date")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  course       Course                 @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  submissions  AssignmentSubmission[]
+
+  @@map("course_assignments")
+}
+
+model AssignmentSubmission {
+  id            Int      @id @default(autoincrement()) @db.UnsignedInt
+  assignmentId  Int      @map("assignment_id") @db.UnsignedInt
+  userId        Int      @map("user_id") @db.UnsignedInt
+  fileUrl       String?  @map("file_url") @db.VarChar(500)
+  submissionText String? @map("submission_text") @db.LongText
+  grade         Decimal? @db.Decimal(5, 2)
+  feedback      String?  @db.Text
+  submittedAt   DateTime? @map("submitted_at")
+  gradedAt      DateTime? @map("graded_at")
+
+  assignment CourseAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([assignmentId, userId])
+  @@map("assignment_submissions")
+}
+
+model LessonProgress {
+  id            Int            @id @default(autoincrement()) @db.UnsignedInt
+  lessonId      Int            @map("lesson_id") @db.UnsignedInt
+  userId        Int            @map("user_id") @db.UnsignedInt
+  status        ProgressStatus
+  lastAccessedAt DateTime?     @map("last_accessed_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([lessonId, userId])
+  @@map("lesson_progress")
+}
+
+model CourseProgress {
+  id                   Int            @id @default(autoincrement()) @db.UnsignedInt
+  courseId             Int            @map("course_id") @db.UnsignedInt
+  userId               Int            @map("user_id") @db.UnsignedInt
+  status               ProgressStatus
+  completionPercentage Decimal        @map("completion_percentage") @db.Decimal(5, 2)
+  updatedAt            DateTime       @updatedAt @map("updated_at")
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, userId])
+  @@map("course_progress")
+}
+
+enum Role {
+  STUDENT
+  INSTRUCTOR
+  ADMIN
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  DROPPED
+}
+
+enum ProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum ContentType {
+  TEXT
+  IMAGE
+  VIDEO
 }
