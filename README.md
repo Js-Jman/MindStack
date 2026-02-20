@@ -119,19 +119,52 @@ npm i
 
 ### 3️⃣ Environment Configuration
 
-Create a `.env` file in the root directory with the following configuration and update your DB details before running the application:
+Create a `.env.local` file in the root directory with the following configuration:
 
+```env
+# Database Configuration
+DATABASE_URL="mysql://user:password@localhost:3306/mindstack"
+
+# Environment
+NODE_ENV=development
+
+# API Configuration
+NEXT_PUBLIC_API_URL=http://localhost:3000
 ```
-DB_USER=root
-DB_PASS=
-DB_HOST=localhost
-DB_PORT=3306
-DB_NAME=myappdb
+
+Replace `user`, `password`, and database name with your actual MySQL credentials.
+
+---
+
+### 4️⃣ Database Setup with Prisma
+
+First, generate the Prisma client:
+
+```bash
+npm run prisma:generate
+```
+
+Then push the schema to your database:
+
+```bash
+npm run db:push
+```
+
+Finally, seed the database with dummy data:
+
+```bash
+npm run prisma:seed
+```
+
+Or run all steps at once:
+
+```bash
+npm run db:seed
 ```
 
 ---
 
-### 4️⃣ Run Development Server
+### 5️⃣ Run Development Server
 
 ```bash
 npm run dev
@@ -142,6 +175,70 @@ The application will be available at:
 ```
 http://localhost:3000
 ```
+
+---
+
+## 🎓 Student Dashboard Features
+
+The student dashboard includes:
+
+### Dashboard Components
+- **Stats Cards**: Display total enrollments, completed courses, in-progress courses, and average progress
+- **Search Bar**: Search and filter enrolled courses by title or description
+- **Course Cards**: Beautiful cards showing course information with progress bars
+- **Enroll Button**: Access new courses and enroll in them
+
+### UI/UX Features
+- 🎨 Blue-to-purple gradient theme
+- 📱 Fully responsive design (mobile, tablet, desktop)
+- ✨ Smooth animations and transitions
+- 🎯 Intuitive navigation and interaction
+
+### Key Functionality
+1. **View Enrolled Courses**: See all courses you're currently enrolled in with progress tracking
+2. **Course Search**: Search within your enrolled courses
+3. **Browse Available Courses**: Click "Enroll Courses" button to browse all available courses
+4. **Enroll in New Courses**: One-click enrollment with instant status updates
+5. **Track Progress**: Visual progress bars and stats showing your learning performance
+
+---
+
+## 📊 Database Schema
+
+### Key Models
+
+**User**
+- Manages student, instructor, and admin profiles
+- Stores authentication info and profile data
+
+**Course**
+- Contains course details, instructor info, and metadata
+- Linked to lessons, quizzes, and enrollments
+
+**Enrollment**
+- Tracks student enrollment in courses
+- Maintains progress and completion status
+
+**Lesson**
+- Stores course content and learning materials
+
+**Quiz**
+- Manages assessments and quizzes
+
+---
+
+## 🔌 API Endpoints
+
+### Courses
+- `GET /api/courses` - Get all courses (supports search with `?q=query`)
+- `POST /api/courses` - Create a new course
+
+### Enrollments
+- `GET /api/enrollments?studentId=xxx` - Get enrolled courses for a student
+- `POST /api/enrollments` - Enroll a student in a course
+
+### Stats
+- `GET /api/stats?studentId=xxx` - Get student statistics
 
 ---
 

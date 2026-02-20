@@ -20,8 +20,8 @@
 // }
 
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import bcrypt from "bcrypt";
+import  db  from "@/lib/db";
+import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
   try {
@@ -48,6 +48,7 @@ export async function POST(req: Request) {
         name,
         email,
         password: hashedPassword,
+        role: "STUDENT",
       },
     });
 
@@ -56,6 +57,7 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
+    console.log(error)
     return NextResponse.json(
       { message: "Something went wrong" },
       { status: 500 }
