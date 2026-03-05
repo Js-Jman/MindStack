@@ -1,4 +1,6 @@
 export type Course = {
+  introVideoUrl: string | Blob | MediaSource | MediaStream | undefined;
+  sections: any;
   id: number;
   instructorId: number;
   title: string;
