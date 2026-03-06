@@ -1,26 +1,41 @@
 import { NextResponse } from "next/server";
-import { getStudentStats } from "@/services/enrollment.service";
+import { prisma } from "@/lib/db";
 
-export async function GET(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const studentIdParam = searchParams.get("studentId");
-    const studentId = studentIdParam ? Number(studentIdParam) : NaN;
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const studentIdParam = searchParams.get("studentId");
+  const studentId = Number(studentIdParam);
 
-    if (!studentIdParam || Number.isNaN(studentId)) {
-      return NextResponse.json(
-        { error: "studentId is required" },
-        { status: 400 }
-      );
-    }
-
-    const stats = await getStudentStats(studentId);
-    return NextResponse.json(stats);
-  } catch (error: any) {
-    console.error("Error fetching stats:", error);
-    return NextResponse.json(
-      { error: error.message || "Failed to fetch stats" },
-      { status: 500 }
-    );
+  if (!Number.isInteger(studentId)) {
+    return NextResponse.json({ error: "Invalid studentId" }, { status: 400 });
   }
+
+  const [enrollments, progressRows] = await Promise.all([
+    prisma.courseEnrollment.findMany({ where: { userId: studentId } }),
+    prisma.courseProgress.findMany({ where: { userId: studentId } }),
+  ]);
+
+  const totalEnrollments = enrollments.length;
+  const completedCourses = enrollments.filter(
+    (e) => e.status === "COMPLETED",
+  ).length;
+  const inProgressCourses = enrollments.filter(
+    (e) => e.status === "ACTIVE",
+  ).length;
+  const avg =
+    progressRows.length === 0
+      ? 0
+      : Math.round(
+          progressRows.reduce(
+            (acc, r) => acc + Number(r.completionPercentage),
+            0,
+          ) / progressRows.length,
+        );
+
+  return NextResponse.json({
+    totalEnrollments,
+    completedCourses,
+    inProgressCourses,
+    averageProgress: avg,
+  });
 }

@@ -1,17 +1,33 @@
+import {
+  User,
+  CourseAssignment,
+  CourseEnrollment,
+  CourseSection,
+  CourseProgress,
+} from "@prisma/client";
+
 export type Course = {
-  introVideoUrl: string | Blob | MediaSource | MediaStream | undefined;
-  sections: any;
   id: number;
   instructorId: number;
   title: string;
   description: string;
   thumbnailUrl?: string | null;
   price?: number | null;
+  introVideoUrl?: string | null;
   isPublished: boolean;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date | null;
-  instructor?: Instructor;
+
+  instructor?: Pick<User, "id" | "name" | "email">;
+  sections: (CourseSection & { lessons: { id: number; title: string }[] })[];
+  assignments?: CourseAssignment[];
+  enrollments?: (CourseEnrollment & {
+    user: Pick<User, "id" | "name" | "email">;
+  })[];
+  courseProgress?: CourseProgress[];
+
+
   lessonCount?: number;
   rating?: number;
   duration?: number;
@@ -39,4 +55,3 @@ export type CreateCourseInput = {
 };
 
 export type UpdateCourseInput = Partial<CreateCourseInput>;
-
