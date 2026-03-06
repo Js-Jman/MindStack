@@ -24,7 +24,10 @@ export async function findAll(): Promise<Course[]> {
     where: { isPublished: true },
     include: {
       instructor: { select: instructorSelect },
-      sections: { include: { lessons: { select: { id: true } } } },
+      sections: { include: { lessons: { select: { id: true, title: true } } } },
+      assignments: true,
+      enrollments: true,
+      courseProgress: true,
     },
   });
 
@@ -36,7 +39,14 @@ export async function findById(id: number): Promise<Course | null> {
     where: { id },
     include: {
       instructor: { select: instructorSelect },
-      sections: { include: { lessons: { select: { id: true } } } },
+      sections: { include: { lessons: { select: { id: true, title: true } } } },
+      assignments: true,
+      enrollments: {
+        include: {
+          user: { select: { id: true, name: true, email: true } },
+        },
+      },
+      courseProgress: true,
     },
   });
 
@@ -52,7 +62,10 @@ export async function findEnrolledCoursesByStudent(
       course: {
         include: {
           instructor: { select: instructorSelect },
-          sections: { include: { lessons: { select: { id: true } } } },
+          sections: {
+            include: { lessons: { select: { id: true, title: true } } },
+          },
+          assignments: true,
           courseProgress: {
             where: { userId: studentId },
             select: { completionPercentage: true, status: true },
@@ -82,7 +95,10 @@ export async function create(data: CreateCourseInput): Promise<Course> {
     },
     include: {
       instructor: { select: instructorSelect },
-      sections: { include: { lessons: { select: { id: true } } } },
+      sections: { include: { lessons: { select: { id: true, title: true } } } },
+      assignments: true,
+      enrollments: true,
+      courseProgress: true,
     },
   });
 
@@ -98,7 +114,10 @@ export async function update(
     data,
     include: {
       instructor: { select: instructorSelect },
-      sections: { include: { lessons: { select: { id: true } } } },
+      sections: { include: { lessons: { select: { id: true, title: true } } } },
+      assignments: true,
+      enrollments: true,
+      courseProgress: true,
     },
   });
 
@@ -127,7 +146,10 @@ export async function searchCourses(query: string): Promise<Course[]> {
     },
     include: {
       instructor: { select: instructorSelect },
-      sections: { include: { lessons: { select: { id: true } } } },
+      sections: { include: { lessons: { select: { id: true, title: true } } } },
+      assignments: true,
+      enrollments: true,
+      courseProgress: true,
     },
   });
 

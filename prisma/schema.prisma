@@ -226,6 +226,7 @@ model LessonProgress {
   status        ProgressStatus
   lastAccessedAt DateTime?     @map("last_accessed_at")
   updatedAt     DateTime       @updatedAt @map("updated_at")
+  completedAt DateTime?
 
   lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
