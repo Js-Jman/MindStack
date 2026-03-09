@@ -62,7 +62,6 @@ export default function CoursesPage() {
     const q = query.trim().toLowerCase();
 
     const next = courses.filter((c) => {
-      // Filter pills
       const pass =
         activeFilter === "ALL" ||
         (activeFilter === "ENROLLED" && c.isEnrolled) ||
@@ -97,7 +96,6 @@ export default function CoursesPage() {
         </div>
 
         <div className="flex-1 space-y-10">
-          {/* Header gradient card */}
           <div className="rounded-2xl p-8 bg-gradient-to-r from-[#6a5ae0] via-[#5d8dee] to-[#6a5ae0] text-white shadow-xl">
             <h1 className="text-3xl font-extrabold">Course Catalog</h1>
             <p className="text-white/90 mt-1">
@@ -108,7 +106,7 @@ export default function CoursesPage() {
               <SearchBar onSearch={setQuery} />
             </div>
 
-            {/* Filter Chips */}
+           
             <div className="mt-4 flex flex-wrap gap-2">
               {FILTERS.map((f) => {
                 const active = activeFilter === f.key;
@@ -130,7 +128,7 @@ export default function CoursesPage() {
             </div>
           </div>
 
-          {/* Course Grid */}
+          
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -151,7 +149,6 @@ export default function CoursesPage() {
                   key={c.id}
                   className="group relative bg-white rounded-2xl border border-purple-100 shadow hover:shadow-lg hover:-translate-y-0.5 transition-all overflow-hidden"
                 >
-                  {/* Whole card clickable */}
                   <Link
                     href={`/courses/${c.id}`}
                     className="absolute inset-0 z-[1]"
