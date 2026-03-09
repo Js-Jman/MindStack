@@ -55,6 +55,14 @@ export default function Page() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Landing page should always start as public, clear any cached auth cookie.
+    void fetch("/api/auth/signout", {
+      method: "POST",
+      credentials: "include",
+    });
+  }, []);
+
+  useEffect(() => {
     (async () => {
       try {
         setIsLoadingCourses(true);
@@ -89,7 +97,7 @@ export default function Page() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-white">
-      <Navbar />
+      <Navbar forcePublic />
       <div className="w-full max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-10">
         <main className="flex-1 min-w-0 flex flex-col gap-10">
           <div className="mb-8">

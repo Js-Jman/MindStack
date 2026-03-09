@@ -1,13 +1,30 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { getSession } from "@/lib/auth";
+
+async function resolveStudentIdFromSession() {
+  const session = await getSession();
+  if (!session?.userId) return null;
+
+  const byId = await prisma.user.findUnique({
+    where: { id: Number(session.userId) },
+    select: { id: true, deletedAt: true },
+  });
+  if (byId && !byId.deletedAt) return byId.id;
+
+  const byEmail = await prisma.user.findUnique({
+    where: { email: session.email },
+    select: { id: true, deletedAt: true },
+  });
+  if (byEmail && !byEmail.deletedAt) return byEmail.id;
+
+  return null;
+}
 
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const studentIdParam = searchParams.get("studentId");
-  const studentId = Number(studentIdParam);
-
-  if (!Number.isInteger(studentId)) {
-    return NextResponse.json({ error: "Invalid studentId" }, { status: 400 });
+  const studentId = await resolveStudentIdFromSession();
+  if (!studentId) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
   const [enrollments, progressRows] = await Promise.all([

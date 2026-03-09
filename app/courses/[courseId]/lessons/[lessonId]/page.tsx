@@ -128,9 +128,12 @@ export default async function LessonPage({ params }: Props) {
           <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-gray-500 hover:bg-white/50 hover:text-purple-600 transition-all whitespace-nowrap">
             <Layout size={18} /> Overview
           </button>
-          <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-gray-500 hover:bg-white/50 hover:text-purple-600 transition-all whitespace-nowrap">
+          <Link
+            href={`/courses/${course.id}/quizzes?lessonId=${lessonRecord.id}`}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-gray-500 hover:bg-white/50 hover:text-purple-600 transition-all whitespace-nowrap"
+          >
             <HelpCircle size={18} /> Quiz
-          </button>
+          </Link>
           <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-gray-500 hover:bg-white/50 hover:text-purple-600 transition-all whitespace-nowrap">
             <FileText size={18} /> Assignments
           </button>

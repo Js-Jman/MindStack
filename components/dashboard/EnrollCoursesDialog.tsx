@@ -7,6 +7,7 @@ interface Course {
   title: string;
   description: string;
   image?: string;
+  isEnrolled?: boolean;
   instructor?: {
     name?: string;
   };
@@ -19,7 +20,6 @@ interface Course {
 interface EnrollCoursesDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  studentId: number;
   enrolledCourseIds?: number[];
   onEnrollSuccess?: () => void;
 }
@@ -27,7 +27,6 @@ interface EnrollCoursesDialogProps {
 export function EnrollCoursesDialog({
   isOpen,
   onClose,
-  studentId,
   enrolledCourseIds = [],
   onEnrollSuccess,
 }: EnrollCoursesDialogProps) {
@@ -39,9 +38,17 @@ export function EnrollCoursesDialog({
     null
   );
   const [searchQuery, setSearchQuery] = useState("");
+  const [locallyEnrolledIds, setLocallyEnrolledIds] = useState<number[]>([]);
+
+  const isCourseEnrolled = (course: Course) =>
+    enrolledCourseIds.includes(course.id) ||
+    locallyEnrolledIds.includes(course.id) ||
+    Boolean(course.isEnrolled);
 
   useEffect(() => {
     if (isOpen) {
+      setLocallyEnrolledIds([]);
+      setError(null);
       fetchAvailableCourses();
     }
   }, [isOpen]);
@@ -49,11 +56,12 @@ export function EnrollCoursesDialog({
   useEffect(() => {
     const filtered = courses.filter(
       (course) =>
-        course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        course.description.toLowerCase().includes(searchQuery.toLowerCase())
+        !isCourseEnrolled(course) &&
+        (course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          course.description.toLowerCase().includes(searchQuery.toLowerCase()))
     );
     setFilteredCourses(filtered);
-  }, [courses, searchQuery]);
+  }, [courses, searchQuery, enrolledCourseIds, locallyEnrolledIds]);
 
   const fetchAvailableCourses = async () => {
     try {
@@ -79,18 +87,31 @@ export function EnrollCoursesDialog({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          studentId,
           courseId,
         }),
       });
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || "Failed to enroll");
+        const message = data.error || "Failed to enroll";
+
+        // Keep UI in sync if server says user was already enrolled.
+        if (/already enrolled/i.test(message)) {
+          setLocallyEnrolledIds((prev) =>
+            prev.includes(courseId) ? prev : [...prev, courseId]
+          );
+          if (onEnrollSuccess) {
+            onEnrollSuccess();
+          }
+          return;
+        }
+
+        throw new Error(message);
       }
 
-      // Update the enrolled course IDs
-      enrolledCourseIds.push(courseId);
+      setLocallyEnrolledIds((prev) =>
+        prev.includes(courseId) ? prev : [...prev, courseId]
+      );
 
       if (onEnrollSuccess) {
         onEnrollSuccess();
@@ -178,7 +199,7 @@ export function EnrollCoursesDialog({
                   duration={course.duration}
                   lessonCount={course.lessonCount}
                   rating={course.rating}
-                  isEnrolled={enrolledCourseIds.includes(course.id)}
+                  isEnrolled={isCourseEnrolled(course)}
                   isLoading={enrollingCourseId === course.id}
                   onEnroll={() => handleEnroll(course.id)}
                 />
