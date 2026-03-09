@@ -1,6 +1,7 @@
 import { prisma} from "@/lib/db";
 import {Role} from "@prisma/client";
 import { CreateUserInput } from "@/types/user";
+import { Role } from "@prisma/client";
 
 export async function findById(id: number) {
   return await prisma.user.findUnique({
@@ -54,7 +55,10 @@ export async function findAll(role?: Role) {
 
 export async function create(data: CreateUserInput) {
   return await prisma.user.create({
-    data,
+    data: {
+      ...data,
+      role: data.role ?? "STUDENT",
+    },
     select: {
       id: true,
       email: true,
