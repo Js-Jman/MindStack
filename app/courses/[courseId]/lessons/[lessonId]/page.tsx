@@ -134,9 +134,12 @@ export default async function LessonPage({ params }: Props) {
           >
             <HelpCircle size={18} /> Quiz
           </Link>
-          <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-gray-500 hover:bg-white/50 hover:text-purple-600 transition-all whitespace-nowrap">
+          <Link
+            href={`/courses/${course.id}/assignments?lessonId=${lessonRecord.id}`}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-gray-500 hover:bg-white/50 hover:text-purple-600 transition-all whitespace-nowrap"
+          >
             <FileText size={18} /> Assignments
-          </button>
+          </Link>
         </div>
 
         <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-6 md:p-10 border border-white/40 shadow-xl space-y-10">
