@@ -52,12 +52,20 @@ export default function Navbar() {
         )}
 
         {!loading && !user && (
-          <a
-            href="/signin"
-            className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-          >
-            Sign In
-          </a>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/signin"
+              className="px-4 py-2 text-sm font-medium border border-border rounded-lg hover:bg-muted transition-colors"
+            >
+              Sign In
+            </Link>
+            <Link
+              href="/signup"
+              className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+            >
+              Sign Up
+            </Link>
+          </div>
         )}
       </nav>
 

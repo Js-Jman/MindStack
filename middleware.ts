@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { verifyToken } from "@/lib/jwt";
 
+const AUTH_PAGES = ["/signin", "/signup"];
+
 const PUBLIC_PATHS = [
   "/",
   "/signin",
@@ -18,13 +20,14 @@ const PUBLIC_PATHS = [
   "/api/courses"
 ];
 
+function roleHome(role: "ADMIN" | "INSTRUCTOR" | "STUDENT") {
+  if (role === "ADMIN") return "/admin";
+  if (role === "INSTRUCTOR") return "/instructor";
+  return "/student";
+}
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-
-  // Allow public paths
-  if (PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
-    return NextResponse.next();
-  }
 
   // Allow static files and Next internals
   if (
@@ -48,6 +51,21 @@ export async function middleware(req: NextRequest) {
     session = await verifyToken(token);
   }
 
+  // Keep landing page public for everyone.
+  if (pathname === "/") {
+    return NextResponse.next();
+  }
+
+  // Redirect authenticated users away from auth entry pages.
+  if (AUTH_PAGES.includes(pathname) && session) {
+    return NextResponse.redirect(new URL(roleHome(session.role), req.url));
+  }
+
+  // Allow remaining public paths.
+  if (PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
+    return NextResponse.next();
+  }
+
   if (!session) {
     if (pathname.startsWith("/api/")) {
       return NextResponse.json(
@@ -59,19 +77,16 @@ export async function middleware(req: NextRequest) {
   }
 
   // Role-based guards
-  if (
-    pathname.startsWith("/instructor") &&
-    session.role !== "INSTRUCTOR" &&
-    session.role !== "ADMIN"
-  ) {
-    return NextResponse.redirect(new URL("/student", req.url));
+  if (pathname.startsWith("/admin") && session.role !== "ADMIN") {
+    return NextResponse.redirect(new URL(roleHome(session.role), req.url));
   }
 
-  if (
-    pathname.startsWith("/student") &&
-    session.role === "INSTRUCTOR"
-  ) {
-    return NextResponse.redirect(new URL("/instructor", req.url));
+  if (pathname.startsWith("/instructor") && session.role !== "INSTRUCTOR") {
+    return NextResponse.redirect(new URL(roleHome(session.role), req.url));
+  }
+
+  if (pathname.startsWith("/student") && session.role !== "STUDENT") {
+    return NextResponse.redirect(new URL(roleHome(session.role), req.url));
   }
 
   // Attach user info to response headers for downstream handlers
