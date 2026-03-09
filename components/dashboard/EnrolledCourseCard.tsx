@@ -1,5 +1,5 @@
 import React from "react";
-import { Star, BarChart3, BookOpen } from "lucide-react";
+import { BarChart3, BookOpen } from "lucide-react";
 import Image from "next/image";
 
 interface EnrolledCourseCardProps {
@@ -9,7 +9,6 @@ interface EnrolledCourseCardProps {
   instructorName?: string;
   progress?: number;
   lessonCount?: number;
-  rating?: number;
   onClick?: () => void;
 }
 
@@ -20,7 +19,6 @@ export function EnrolledCourseCard({
   instructorName,
   progress = 0,
   lessonCount = 0,
-  rating = 0,
   onClick,
 }: EnrolledCourseCardProps) {
   return (
@@ -44,10 +42,6 @@ export function EnrolledCourseCard({
             <BookOpen className="w-12 h-12 text-purple-400" />
           </div>
         )}
-        <div className="absolute top-3 right-3 bg-white/90 px-3 py-1 rounded-full flex items-center gap-1">
-          <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-          <span className="text-sm font-semibold text-gray-700">{rating}</span>
-        </div>
       </div>
 
       {/* Content */}

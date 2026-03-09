@@ -59,7 +59,7 @@ export default async function AdminDashboardPage() {
   }));
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 pb-10">
+    <div className="max-w mx-auto space-y-6 pb-10">
       <WelcomeBanner />
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">

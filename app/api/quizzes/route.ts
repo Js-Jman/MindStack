@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
         include: {
           options: {
             orderBy: { id: "asc" },
-            select: { id: true, optionText: true },
+            select: { id: true, optionText: true, isCorrect: true },
           },
         },
       },
@@ -47,7 +47,8 @@ export async function GET(req: NextRequest) {
       questions: quiz.questions.map((q) => ({
         id: q.id,
         questionText: q.questionText,
-        options: q.options,
+        options: q.options.map(o => ({ id: o.id, optionText: o.optionText })),
+        correctOptionId: q.options.find(o => o.isCorrect)?.id ?? null,
       })),
     })),
   );

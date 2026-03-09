@@ -54,13 +54,14 @@ export default function Page() {
   const [isLoadingCourses, setIsLoadingCourses] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+
   useEffect(() => {
     // Landing page should always start as public, clear any cached auth cookie.
     void fetch("/api/auth/signout", {
       method: "POST",
       credentials: "include",
     });
-  }, []);
+  });
 
   useEffect(() => {
     (async () => {

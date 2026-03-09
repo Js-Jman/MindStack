@@ -1,71 +1,61 @@
+/**
+ * @fileoverview Progress Server Actions - Business Logic Layer
+ * 
+ * Server actions for lesson progress tracking that can be called directly from React components.
+ * All operations delegate to the progress service (which uses repositories for DB access).
+ * 
+ * Uses Next.js revalidatePath to maintain cache consistency and update UI.
+ */
+
 "use server";
 
-import { prisma } from "@/lib/db";
+import { markLessonDone } from "@/services/progress.service";
 import { revalidatePath } from "next/cache";
-import { Prisma } from "@prisma/client";
 
-// Mark a lesson as COMPLETED and recompute CourseProgress for the user.
+/**
+ * Toggle lesson completion status (Server Action)
+ * 
+ * Marks a lesson as completed or incomplete, triggering course progress recalculation.
+ * 
+ * This operation:
+ * 1. Updates lesson progress status
+ * 2. Ensures user is enrolled in the course
+ * 3. Recalculates course completion percentage
+ * 4. Updates course status based on completion
+ * 5. Updates enrollment status if course reaches 100%
+ * 
+ * Uses Prisma transaction for atomicity
+ * 
+ * Revalidates paths to update UI after progress update
+ * 
+ * @param lessonId - ID of the lesson
+ * @param userId - ID of the student
+ * @throws Error if lesson not found or user not enrolled
+ */
 export async function toggleLessonProgress(lessonId: number, userId: number) {
-  const lesson = await prisma.lesson.findUnique({
-    where: { id: lessonId },
-    include: { section: { select: { courseId: true } } },
-  });
-  if (!lesson) throw new Error("Lesson not found");
+  try {
+    // Delegate to progress service
+    // Service delegates to progress repository which:
+    // - Validates lesson exists and is not soft-deleted
+    // - Ensures user is enrolled in the course
+    // - Marks lesson as COMPLETED (always marks as done, toggle logic handled elsewhere)
+    // - Recalculates course completion percentage
+    // - Updates course and enrollment status based on completion
+    // - Uses Prisma transaction for atomicity
 
-  const courseId = lesson.section.courseId;
+    // NOTE: Currently always marks as COMPLETED, doesn't toggle based on current state
+    // To implement true toggle, would need to:
+    // 1. Query existing lesson progress status
+    // 2. Toggle to opposite status
+    // For now, calling markLessonDone with done=true
+    await markLessonDone(userId, lessonId, true);
 
-  // Ensure the user is enrolled
-  const enrollment = await prisma.courseEnrollment.findUnique({
-    where: { courseId_userId: { courseId, userId } },
-  });
-  if (!enrollment) throw new Error("User is not enrolled in this course");
-
-  // Upsert LessonProgress
-  await prisma.lessonProgress.upsert({
-    where: { lessonId_userId: { lessonId, userId } },
-    create: { lessonId, userId, status: "COMPLETED", completedAt: new Date() },
-    update: { status: "COMPLETED", completedAt: new Date() },
-  });
-
-  // Recompute course progress
-  const [totalLessons, completedLessons] = await Promise.all([
-    prisma.lesson.count({ where: { section: { courseId } } }),
-    prisma.lessonProgress.count({
-      where: { userId, status: "COMPLETED", lesson: { section: { courseId } } },
-    }),
-  ]);
-
-  const pct =
-    totalLessons === 0
-      ? 0
-      : Math.round((completedLessons / totalLessons) * 100);
-  const status =
-    pct >= 100 ? "COMPLETED" : pct > 0 ? "IN_PROGRESS" : "NOT_STARTED";
-
-  await prisma.courseProgress.upsert({
-    where: { courseId_userId: { courseId, userId } },
-    create: {
-      courseId,
-      userId,
-      status,
-      completionPercentage: new Prisma.Decimal(pct),
-    },
-    update: {
-      status,
-      completionPercentage: new Prisma.Decimal(pct),
-    },
-  });
-
-  // Optionally mark CourseEnrollment completed when 100%
-  if (pct === 100 && enrollment.status !== "COMPLETED") {
-    await prisma.courseEnrollment.update({
-      where: { courseId_userId: { courseId, userId } },
-      data: { status: "COMPLETED", completedAt: new Date() },
-    });
+    // Revalidate relevant pages to trigger re-render
+    revalidatePath(`/courses/${lessonId}/lessons/${lessonId}`);
+    revalidatePath(`/courses`);
+    revalidatePath(`/dashboard/student`);
+  } catch (error) {
+    console.error("Error toggling lesson progress:", error);
+    throw error;
   }
-
-  // Revalidate the relevant pages
-  revalidatePath(`/courses/${courseId}/lessons/${lessonId}`);
-  revalidatePath(`/courses/${courseId}`);
-  revalidatePath(`/courses`);
 }

@@ -1,6 +1,20 @@
+/**
+ * @file GET /api/enrollments - Get student's enrolled courses
+ *      POST /api/enrollments - Enroll student in a course
+ *
+ * This route handler orchestrates HTTP requests for enrollment operations.
+ *
+ * Responsibilities (API Layer):
+ * 1. Extract and validate HTTP request data
+ * 2. Authenticate/authorize the user
+ * 3. Call service layer with validated inputs
+ * 4. Format responses according to API contract
+ * 5. Map business logic errors to HTTP status codes
+ */
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { enrollStudentInCourse } from "@/services/enrollment.service";
+import { enrollStudentInCourse, getStudentEnrollmentsFormatted } from "@/services/enrollment.service";
 import { getSession } from "@/lib/auth";
 
 async function resolveStudentIdFromSession() {
@@ -28,51 +42,14 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const enrollments = await prisma.courseEnrollment.findMany({
-    where: { userId: studentId },
-    include: {
-      course: {
-        include: {
-          instructor: { select: { name: true, email: true } },
-          sections: { include: { lessons: { select: { id: true } } } },
-          courseProgress: {
-            where: { userId: studentId },
-            select: { completionPercentage: true },
-          },
-        },
-      },
-    },
-    orderBy: { enrolledAt: "desc" },
-  });
-
-  const payload = enrollments.map((e) => {
-    const lessonsCount = e.course.sections.reduce(
-      (acc, s) => acc + s.lessons.length,
-      0,
-    );
-    const progress = e.course.courseProgress[0]
-      ? Number(e.course.courseProgress[0].completionPercentage)
-      : 0;
-
-    return {
-      id: e.courseId,
-      title: e.course.title,
-      description: e.course.description,
-      image: e.course.thumbnailUrl,
-      instructor: {
-        name: e.course.instructor?.name,
-        email: e.course.instructor?.email ?? "",
-      },
-      level: undefined, // not in schema
-      duration: undefined, // not in schema
-      lessonCount: lessonsCount,
-      rating: undefined, // not in schema
-      progress,
-      status: e.status,
-    };
-  });
-
-  return NextResponse.json(payload);
+  try {
+    const enrollments = await getStudentEnrollmentsFormatted(studentId);
+    return NextResponse.json(enrollments);
+  } catch (error: unknown) {
+    console.error("Error fetching enrollments:", error);
+    const message = error instanceof Error ? error.message : "Failed to fetch enrollments";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {
@@ -88,22 +65,21 @@ export async function POST(request: Request) {
 
     if (!courseIdRaw || Number.isNaN(courseId)) {
       return NextResponse.json(
-        { error: "courseId is required" },
+        { error: "courseId is required and must be a valid number" },
         { status: 400 }
       );
     }
-    await enrollStudentInCourse(studentId, courseId);
+
+    // Service call - handles enrollment creation and initial progress tracking
+    const enrollment = await enrollStudentInCourse(studentId, courseId);
+
     return NextResponse.json({
-      status: 201,
-      message: "User enrolled",
-      data: { studentId, courseId },
-    });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
+      message: "User enrolled successfully",
+      data: enrollment,
+    }, { status: 201 });
+  } catch (error: unknown) {
     console.error("Error creating enrollment:", error);
-    return NextResponse.json(
-      { error: error.message || "Failed to enroll in course" },
-      { status: 400 }
-    );
+    const message = error instanceof Error ? error.message : "Failed to enroll in course";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }

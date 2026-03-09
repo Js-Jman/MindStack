@@ -21,11 +21,13 @@ export default function SignupPage() {
     e.preventDefault();
     setError("");
     if (!form.name || !form.email || !form.password) {
-      setError("All fields are required.");
+      const msg = "All fields are required.";
+      setError(msg);
       return;
     }
     if (form.password.length < 8) {
-      setError("Password must be at least 8 characters.");
+      const msg = "Password must be at least 8 characters.";
+      setError(msg);
       return;
     }
     setLoading(true);
@@ -44,8 +46,11 @@ export default function SignupPage() {
       } else {
         router.push("/student");
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
-      setError(e.message);
+      const msg = e.message || "Sign up failed";
+      setError(msg);
+
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,5 @@
 import React from "react";
-import { Star, Users, Clock, Badge } from "lucide-react";
+import { Users, Badge } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -10,10 +10,7 @@ interface AvailableCourseCardProps {
   image?: string;
   instructorName?: string;
   instructorAvatar?: string;
-  level?: string;
-  duration?: number;
   lessonCount?: number;
-  rating?: number;
   isEnrolled?: boolean;
   onEnroll?: () => void;
   isLoading?: boolean;
@@ -26,19 +23,11 @@ export function AvailableCourseCard({
   image,
   instructorName,
   instructorAvatar,
-  level = "Beginner",
-  duration = 0,
   lessonCount = 0,
-  rating = 0,
   isEnrolled = false,
   onEnroll,
   isLoading = false,
 }: AvailableCourseCardProps) {
-  const levelColors = {
-    Beginner: "bg-green-100 text-green-800",
-    Intermediate: "bg-blue-100 text-blue-800",
-    Advanced: "bg-purple-100 text-purple-800",
-  };
   const learnerCount = (id * 37) % 500 + 50;
 
   return (
@@ -56,22 +45,6 @@ export function AvailableCourseCard({
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <Badge className="w-16 h-16 text-purple-400" />
-          </div>
-        )}
-        <div className="absolute top-3 left-3">
-          <span
-            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
-              levelColors[level as keyof typeof levelColors] ||
-              levelColors.Beginner
-            }`}
-          >
-            {level}
-          </span>
-        </div>
-        {rating > 0 && (
-          <div className="absolute top-3 right-3 bg-white/90 px-3 py-1 rounded-full flex items-center gap-1 shadow-md">
-            <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-            <span className="text-sm font-semibold text-gray-700">{rating}</span>
           </div>
         )}
       </div>
@@ -110,10 +83,6 @@ export function AvailableCourseCard({
 
         {/* Course Details */}
         <div className="flex flex-wrap gap-3 mb-4 pt-3 border-t border-gray-100 text-xs">
-          <div className="flex items-center gap-1 text-gray-600">
-            <Clock className="w-4 h-4 text-purple-500" />
-            <span>{duration}h</span>
-          </div>
           <div className="flex items-center gap-1 text-gray-600">
             <Badge className="w-4 h-4 text-blue-500" />
             <span>{lessonCount} lessons</span>

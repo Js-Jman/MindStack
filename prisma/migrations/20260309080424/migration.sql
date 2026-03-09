@@ -5,4 +5,5 @@
 
 */
 -- AlterTable
-ALTER TABLE `lesson_progress` ADD COLUMN `completed_at` DATETIME(3) NOT NULL;
+-- changed to allow NULL so existing rows can exist and completion is optional
+ALTER TABLE `lesson_progress` ADD COLUMN `completed_at` DATETIME(3) NULL;

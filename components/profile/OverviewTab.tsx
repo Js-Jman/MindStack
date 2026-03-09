@@ -51,6 +51,7 @@ export function OverviewTab({
       setSuccess("Profile updated successfully!");
       setEditing(false);
       onSaved?.({ name: name.trim(), phoneNumber: phone.trim() });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       setError(e.message);
     } finally {

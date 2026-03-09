@@ -54,6 +54,7 @@ export function ChangePasswordTab({ userId }: ChangePasswordTabProps) {
       if (!res.ok) throw new Error((await res.json()).error ?? "Failed to update password");
       setSuccess("Password updated successfully!");
       setForm({ oldPassword: "", newPassword: "", confirmPassword: "" });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       setError(e.message);
     } finally {

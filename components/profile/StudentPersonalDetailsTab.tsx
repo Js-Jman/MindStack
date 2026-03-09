@@ -37,6 +37,7 @@ export function StudentPersonalDetailsTab({
       if (!res.ok) throw new Error((await res.json()).error ?? "Save failed");
       setSuccess("Educational details updated successfully!");
       setEditing(false);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       setError(e.message);
     } finally {
