@@ -1,4 +1,3 @@
-// app/api/users/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
@@ -85,7 +84,6 @@ export async function PATCH(
       linkedin, twitter, facebook,
     } = body;
 
-    // Password change
     if (newPassword !== undefined) {
       if (!oldPassword) {
         return NextResponse.json(
@@ -114,7 +112,6 @@ export async function PATCH(
       return NextResponse.json({ message: "Password updated successfully" });
     }
 
-    // Core user fields
     const userUpdate: Record<string, unknown> = {};
     if (name !== undefined) userUpdate.name = name;
     if (phoneNumber !== undefined) userUpdate.phoneNumber = phoneNumber;
@@ -123,7 +120,6 @@ export async function PATCH(
       await prisma.user.update({ where: { id: targetId }, data: userUpdate });
     }
 
-    // Profile fields
     const profileData: Record<string, unknown> = {};
     if (collegeName !== undefined) profileData.collegeName = collegeName;
     if (skills !== undefined) profileData.skills = skills;

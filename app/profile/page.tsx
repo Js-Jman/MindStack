@@ -1,4 +1,3 @@
-// app/profile/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -110,7 +109,6 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {/* Back link */}
         <button
           onClick={() => router.push(dashboardHref)}
           className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
@@ -119,7 +117,6 @@ export default function ProfilePage() {
         </button>
 
         <div className="flex gap-8">
-          {/* Sidebar */}
           <div className="w-80 bg-white/80 border border-purple-100 rounded-2xl shadow-lg p-6 flex flex-col gap-4 sticky top-24 h-fit self-start">
             <div className="flex flex-col items-center text-center">
               <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-2xl mb-4">
@@ -133,9 +130,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Main content */}
           <div className="flex-1">
-            {/* Page heading */}
             <div className="flex items-center gap-3 mb-8">
               <div className="p-2.5 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl shadow">
                 <User className="w-6 h-6 text-white" />

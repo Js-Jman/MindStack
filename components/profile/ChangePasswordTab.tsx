@@ -1,4 +1,3 @@
-// components/profile/ChangePasswordTab.tsx
 "use client";
 
 import { useState } from "react";
@@ -90,7 +89,6 @@ export function ChangePasswordTab({ userId }: ChangePasswordTabProps) {
       )}
 
       <div className="space-y-4">
-        {/* Current password */}
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">
             Current Password
@@ -114,7 +112,6 @@ export function ChangePasswordTab({ userId }: ChangePasswordTabProps) {
           </div>
         </div>
 
-        {/* New password */}
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">
             New Password
@@ -137,7 +134,6 @@ export function ChangePasswordTab({ userId }: ChangePasswordTabProps) {
             </button>
           </div>
 
-          {/* Strength bar */}
           {strength && (
             <div className="space-y-1 pt-1">
               <div className="h-1.5 rounded-full bg-muted overflow-hidden">
@@ -156,7 +152,6 @@ export function ChangePasswordTab({ userId }: ChangePasswordTabProps) {
           )}
         </div>
 
-        {/* Confirm password */}
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">
             Confirm New Password
@@ -182,7 +177,7 @@ export function ChangePasswordTab({ userId }: ChangePasswordTabProps) {
               )}
             </button>
           </div>
-          {/* Match indicator */}
+
           {form.confirmPassword.length > 0 && (
             <p
               className={`text-xs ${
