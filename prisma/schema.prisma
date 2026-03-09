@@ -9,26 +9,25 @@ datasource db {
 }
 
 model User {
-  id              Int      @id @default(autoincrement()) @db.UnsignedInt
-  name            String   @db.VarChar(150)
-  email           String   @unique @db.VarChar(190)
-  password        String   @db.VarChar(255)
-  role            Role
-  phoneNumber     String?  @map("phone_number") @db.VarChar(20)
-  avatarUrl       String?  @map("avatar_url") @db.VarChar(500)
-  emailVerifiedAt DateTime? @map("email_verified_at")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
-  deletedAt       DateTime? @map("deleted_at")
-
-  profile                UserProfile?
-  enrollments            CourseEnrollment[]
-  courses                Course[]              @relation("InstructorCourses")
-  passwordResetTokens    PasswordResetToken[]
-  quizAttempts           QuizAttempt[]
-  assignmentSubmissions  AssignmentSubmission[]
-  lessonProgress         LessonProgress[]
-  courseProgress         CourseProgress[]
+  id                    Int                    @id @default(autoincrement()) @db.UnsignedInt
+  name                  String                 @db.VarChar(150)
+  email                 String                 @unique @db.VarChar(190)
+  password              String                 @db.VarChar(255)
+  role                  Role
+  avatarUrl             String?                @map("avatar_url") @db.VarChar(500)
+  phoneNumber           String?                @map("phone_number") @db.VarChar(20)
+  emailVerifiedAt       DateTime?              @map("email_verified_at")
+  createdAt             DateTime               @default(now()) @map("created_at")
+  updatedAt             DateTime               @updatedAt @map("updated_at")
+  deletedAt             DateTime?              @map("deleted_at")
+  assignmentSubmissions AssignmentSubmission[]
+  enrollments           CourseEnrollment[]
+  courseProgress        CourseProgress[]
+  courses               Course[]               @relation("InstructorCourses")
+  lessonProgress        LessonProgress[]
+  passwordResetTokens   PasswordResetToken[]
+  quizAttempts          QuizAttempt[]
+  userProfile           UserProfile?
 
   @@index([role])
   @@map("users")
@@ -36,24 +35,21 @@ model User {
 
 model UserProfile {
   id           Int      @id @default(autoincrement()) @db.UnsignedInt
-  userId       Int      @unique @map("user_id") @db.UnsignedInt
-  // Student-specific
+  userId       Int      @map("user_id") @db.UnsignedInt
   collegeName  String?  @map("college_name") @db.VarChar(255)
   skills       String?  @db.Text
   interests    String?  @db.Text
-  // Instructor-specific
   about        String?  @db.Text
   organization String?  @db.VarChar(255)
   experience   String?  @db.Text
   linkedin     String?  @db.VarChar(500)
   twitter      String?  @db.VarChar(500)
   facebook     String?  @db.VarChar(500)
-
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
-
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([userId])
   @@map("user_profiles")
 }
 
@@ -63,37 +59,20 @@ model PasswordResetToken {
   token     String   @db.VarChar(255)
   expiresAt DateTime @map("expires_at")
   createdAt DateTime @default(now()) @map("created_at")
-
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([token])
+  @@index([userId], map: "password_reset_tokens_user_id_fkey")
   @@map("password_reset_tokens")
 }
 
 model Course {
-<<<<<<< HEAD
-  id          Int      @id @default(autoincrement()) @db.UnsignedInt
-  instructorId Int     @map("instructor_id") @db.UnsignedInt
-  title       String   @db.VarChar(255)
-  description String   @db.Text
-  thumbnailUrl String? @map("thumbnail_url") @db.VarChar(500)
-  price       Decimal? @db.Decimal(10, 2)
-  introVideoUrl String?
-  isPublished Boolean  @default(false) @map("is_published")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  deletedAt   DateTime? @map("deleted_at")
-
-  instructor User             @relation("InstructorCourses", fields: [instructorId], references: [id], onDelete: Cascade)
-  enrollments CourseEnrollment[]
-  sections    CourseSection[]
-  assignments CourseAssignment[]
-=======
   id             Int                @id @default(autoincrement()) @db.UnsignedInt
   instructorId   Int                @map("instructor_id") @db.UnsignedInt
   title          String             @db.VarChar(255)
   description    String             @db.Text
   thumbnailUrl   String?            @map("thumbnail_url") @db.VarChar(500)
+  introVideoUrl   String?           @map("introvideo_url") @db.VarChar(500)
   price          Decimal?           @db.Decimal(10, 2)
   isPublished    Boolean            @default(false) @map("is_published")
   createdAt      DateTime           @default(now()) @map("created_at")
@@ -101,7 +80,6 @@ model Course {
   deletedAt      DateTime?          @map("deleted_at")
   assignments    CourseAssignment[]
   enrollments    CourseEnrollment[]
->>>>>>> e422cfc1f689f0435d16c4a14b7824fb5bfe94f5
   courseProgress CourseProgress[]
   sections       CourseSection[]
   instructor     User               @relation("InstructorCourses", fields: [instructorId], references: [id], onDelete: Cascade)
@@ -262,18 +240,6 @@ model AssignmentSubmission {
 }
 
 model LessonProgress {
-<<<<<<< HEAD
-  id            Int            @id @default(autoincrement()) @db.UnsignedInt
-  lessonId      Int            @map("lesson_id") @db.UnsignedInt
-  userId        Int            @map("user_id") @db.UnsignedInt
-  status        ProgressStatus
-  lastAccessedAt DateTime?     @map("last_accessed_at")
-  updatedAt     DateTime       @updatedAt @map("updated_at")
-  completedAt DateTime?
-
-  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-=======
   id             Int            @id @default(autoincrement()) @db.UnsignedInt
   lessonId       Int            @map("lesson_id") @db.UnsignedInt
   userId         Int            @map("user_id") @db.UnsignedInt
@@ -282,7 +248,6 @@ model LessonProgress {
   updatedAt      DateTime       @updatedAt @map("updated_at")
   lesson         Lesson         @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
->>>>>>> e422cfc1f689f0435d16c4a14b7824fb5bfe94f5
 
   @@unique([lessonId, userId])
   @@index([userId], map: "lesson_progress_user_id_fkey")

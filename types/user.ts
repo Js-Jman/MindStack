@@ -24,6 +24,7 @@ export type User = {
   name: string;
   email: string;
   role: Role;
+  profile?: UserProfile | null;
   phoneNumber?: string | null;
   avatarUrl?: string | null;
   emailVerifiedAt?: Date | null;

@@ -104,7 +104,7 @@
 
 // repositories/user.repository.ts
 import { prisma } from "@/lib/db";
-import { CreateUserInput, UpdateUserInput, UpdateProfileInput } from "@/types/user";
+import { CreateUserInput, UpdateUserInput, UpdateProfileInput, Role } from "@/types/user";
 
 const BASE_SELECT = {
   id: true,
@@ -122,7 +122,7 @@ const BASE_SELECT = {
 export async function findById(id: number) {
   return prisma.user.findUnique({
     where: { id },
-    select: { ...BASE_SELECT, profile: true },
+    select: { ...BASE_SELECT, userProfile: true },
   });
 }
 
@@ -143,7 +143,7 @@ export async function findByEmailWithPassword(email: string) {
 
 export async function findAll(role?: string) {
   return prisma.user.findMany({
-    where: role ? { role: role as any } : undefined,
+    where: role ? { role: role as Role } : undefined,
     select: BASE_SELECT,
   });
 }
@@ -152,7 +152,7 @@ export async function create(data: CreateUserInput) {
   return prisma.user.create({
     data: {
       ...data,
-      role: (data.role || "USER") as any,
+      role: (data.role || "USER") as Role,
     },
     select: BASE_SELECT,
   });
@@ -162,7 +162,7 @@ export async function update(id: number, data: UpdateUserInput) {
   return prisma.user.update({
     where: { id },
     data,
-    select: { ...BASE_SELECT, profile: true },
+    select: { ...BASE_SELECT, userProfile: true },
   });
 }
 

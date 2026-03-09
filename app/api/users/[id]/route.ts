@@ -292,7 +292,7 @@ export async function GET(
       phoneNumber: true,
       avatarUrl: true,
       createdAt: true,
-      profile: true,
+      userProfile: true,
     },
   });
 
@@ -394,7 +394,7 @@ export async function PATCH(
       where: { id: targetId },
       select: {
         id: true, name: true, email: true, role: true,
-        phoneNumber: true, avatarUrl: true, profile: true,
+        phoneNumber: true, avatarUrl: true, userProfile: true,
       },
     });
     return NextResponse.json(updated);
