@@ -88,10 +88,10 @@ export async function getStudentEnrollmentsFormatted(
     studentId
   );
 
-  return enrollments.map((e): EnrolledCourseResponse => {
+  return enrollments.map((e: (typeof enrollments)[number]): EnrolledCourseResponse => {
     // Sum lessons across all sections
     const lessonsCount = e.course.sections.reduce(
-      (acc, s) => acc + s.lessons.length,
+      (acc: number, s: (typeof e.course.sections)[number]) => acc + s.lessons.length,
       0
     );
 

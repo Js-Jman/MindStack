@@ -13,9 +13,9 @@
  */
 
 import { prisma } from "@/lib/db";
-import { Role } from "@prisma/client";
 import {
   CreateUserInput,
+  Roles,
   UpdateUserInput,
   UpdateProfileInput,
   User,
@@ -92,11 +92,11 @@ export async function findByEmailWithPassword(email: string): Promise<(User & { 
  * @param role - Optional role filter (STUDENT, INSTRUCTOR, ADMIN)
  * @returns Array of user records
  */
-export async function findAll(role?: Role): Promise<User[]> {
+export async function findAll(role?: Roles): Promise<User[]> {
   return prisma.user.findMany({
     where: role
-      ? { role: role as Role }
-      : { role: { in: [Role.STUDENT, Role.INSTRUCTOR] } },
+      ? { role }
+      : { role: { in: ["STUDENT", "INSTRUCTOR"] } },
     select: BASE_SELECT,
   });
 }

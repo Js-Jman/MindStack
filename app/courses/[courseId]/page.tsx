@@ -56,6 +56,9 @@ export default async function CoursePage({
     ? Math.round(Number(course.courseProgress[0].completionPercentage))
     : 0;
 
+  type CourseSection = Course["sections"][number];
+  type CourseLesson = CourseSection["lessons"][number];
+
   return (
     <div className="min-h-screen bg-[#f7f8fc]">
       <Navbar />
@@ -106,7 +109,7 @@ export default async function CoursePage({
             Course Curriculum
           </h2>
 
-          {course.sections.map((section) => (
+          {course.sections.map((section: CourseSection) => (
             <div key={section.id} className="mb-8 last:mb-0">
               <h3 className="font-bold text-lg text-purple-800 mb-3 flex items-center gap-2">
                 <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-sm">
@@ -116,7 +119,7 @@ export default async function CoursePage({
               </h3>
 
               <ul className="grid gap-3">
-                {section.lessons.map((lesson) => {
+                {section.lessons.map((lesson: CourseLesson) => {
                   // Check if this specific lesson is done
                   const isDone = lesson.progress?.[0]?.status === "COMPLETED";
 

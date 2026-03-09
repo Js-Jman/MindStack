@@ -14,7 +14,6 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { getInstructorStats } from "@/services/instructor.service";
-import { Role } from "@prisma/client";
 
 async function resolveInstructorIdFromSession() {
   const session = await getSession();
@@ -26,14 +25,14 @@ async function resolveInstructorIdFromSession() {
   });
 
   // Check if user exists, is not deleted, and is an instructor
-  if (user && !user.deletedAt && user.role === Role.INSTRUCTOR) {
+  if (user && !user.deletedAt && user.role === "INSTRUCTOR") {
     return user.id;
   }
 
   return null;
 }
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const instructorId = await resolveInstructorIdFromSession();
     if (!instructorId) {

@@ -12,7 +12,27 @@
  */
 
 import { prisma } from "@/lib/db";
-import { EnrollmentStatus, ProgressStatus, Prisma } from "@prisma/client";
+
+const EnrollmentStatus = {
+  ACTIVE: "ACTIVE",
+  COMPLETED: "COMPLETED",
+  DROPPED: "DROPPED",
+} as const;
+
+const ProgressStatus = {
+  NOT_STARTED: "NOT_STARTED",
+  IN_PROGRESS: "IN_PROGRESS",
+  COMPLETED: "COMPLETED",
+} as const;
+
+function isUniqueConstraintError(error: unknown): error is { code: string } {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: unknown }).code === "P2002"
+  );
+}
 
 /**
  * Standard fields to select for instructor information
@@ -69,10 +89,7 @@ export async function enrollStudent(studentId: number, courseId: number) {
     return enrollment;
   } catch (error: unknown) {
     // Handle unique constraint violation (student already enrolled)
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2002"
-    ) {
+    if (isUniqueConstraintError(error)) {
       throw new Error("Student is already enrolled in this course");
     }
     throw error;
@@ -241,14 +258,14 @@ export async function getStudentStats(studentId: number) {
   // Calculate statistics
   const totalEnrollments = enrollments.length;
   const completedCourses = enrollments.filter(
-    (e) => e.status === EnrollmentStatus.COMPLETED
+    (e: (typeof enrollments)[number]) => e.status === EnrollmentStatus.COMPLETED
   ).length;
   const inProgressCourses = enrollments.filter(
-    (e) => e.status === EnrollmentStatus.ACTIVE
+    (e: (typeof enrollments)[number]) => e.status === EnrollmentStatus.ACTIVE
   ).length;
   
   const totalProgress = progressRows.reduce(
-    (sum, p) => sum + Number(p.completionPercentage),
+    (sum: number, p: (typeof progressRows)[number]) => sum + Number(p.completionPercentage),
     0
   );
   const averageProgress =
@@ -355,7 +372,7 @@ export async function calculateRevenueByInstructor(instructorId: number) {
   });
 
   // Calculate total revenue
-  const totalRevenue = enrollments.reduce((sum, enrollment) => {
+  const totalRevenue = enrollments.reduce((sum: number, enrollment: (typeof enrollments)[number]) => {
     const price = enrollment.course.price ? Number(enrollment.course.price) : 0;
     return sum + price;
   }, 0);
@@ -399,14 +416,14 @@ export async function getEnrollmentChartDataByInstructor(instructorId: number) {
   // Group by month and count
   const monthlyData: { [key: string]: number } = {};
 
-  enrollments.forEach((enrollment) => {
+  enrollments.forEach((enrollment: (typeof enrollments)[number]) => {
     const date = new Date(enrollment.enrolledAt);
     const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
     monthlyData[monthKey] = (monthlyData[monthKey] || 0) + 1;
   });
 
   // Convert to array format for chart
-  return Object.entries(monthlyData).map(([month, count]) => ({
+  return Object.entries(monthlyData).map(([month, count]: [string, number]) => ({
     month,
     count,
   }));

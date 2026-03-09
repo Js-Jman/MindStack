@@ -35,7 +35,7 @@ async function resolveStudentIdFromSession() {
   return null;
 }
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const studentId = await resolveStudentIdFromSession();
     if (!studentId) {

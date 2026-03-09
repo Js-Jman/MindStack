@@ -44,6 +44,7 @@ interface QuizzesTabProps {
 }
 
 export function QuizzesTab({ quizzes, lessons, onChange, onBack }: QuizzesTabProps) {
+  void lessons;
   const [expandedQuiz, setExpandedQuiz] = useState<string | null>(null);
   const [expandedQuestion, setExpandedQuestion] = useState<string | null>(null);
 

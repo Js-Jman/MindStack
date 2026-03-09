@@ -5,6 +5,8 @@ import { RecentActivity } from "../../../components/admin/RecentActivity";
 import { SummaryChart } from "@/components/admin/SummaryChart";
 import { Users, GraduationCap, BookOpen, UserPlus } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 function getLastSixMonthBuckets() {
   const now = new Date();
   const buckets: { key: string; label: string; start: Date; end: Date }[] = [];

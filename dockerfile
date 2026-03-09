@@ -1,15 +1,27 @@
-# ---------- 1. Install dependencies ----------
-FROM node:alpine
+FROM node:20-alpine AS builder
 WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm install
+COPY . .
+RUN npm run prisma:generate
+RUN npm run build
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=3000
 
 COPY package.json package-lock.json ./
-COPY prisma ./prisma/
+RUN npm install --omit=dev
 
-RUN npm install 
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
+COPY --from=builder /app/next.config.ts ./next.config.ts
+COPY --from=builder /app/tsconfig.json ./tsconfig.json
+RUN npm run prisma:generate
 
-
-COPY ./ ./
 
 EXPOSE 3000
-
-CMD ["npm", "start"]
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]
