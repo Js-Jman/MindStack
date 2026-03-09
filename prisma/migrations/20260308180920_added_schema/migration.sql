@@ -140,19 +140,6 @@ CREATE TABLE `quiz_options` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
-CREATE TABLE `quiz_attempts` (
-    `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
-    `quiz_id` INTEGER UNSIGNED NOT NULL,
-    `user_id` INTEGER UNSIGNED NOT NULL,
-    `score` DECIMAL(5, 2) NULL,
-    `started_at` DATETIME(3) NOT NULL,
-    `completed_at` DATETIME(3) NULL,
-
-    INDEX `quiz_attempts_quiz_id_fkey`(`quiz_id`),
-    INDEX `quiz_attempts_user_id_fkey`(`user_id`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `course_assignments` (
@@ -244,11 +231,6 @@ ALTER TABLE `quiz_questions` ADD CONSTRAINT `quiz_questions_quiz_id_fkey` FOREIG
 -- AddForeignKey
 ALTER TABLE `quiz_options` ADD CONSTRAINT `quiz_options_question_id_fkey` FOREIGN KEY (`question_id`) REFERENCES `quiz_questions`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
-ALTER TABLE `quiz_attempts` ADD CONSTRAINT `quiz_attempts_quiz_id_fkey` FOREIGN KEY (`quiz_id`) REFERENCES `quizzes`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `quiz_attempts` ADD CONSTRAINT `quiz_attempts_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `course_assignments` ADD CONSTRAINT `course_assignments_course_id_fkey` FOREIGN KEY (`course_id`) REFERENCES `courses`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

@@ -14,16 +14,44 @@
 
 import { NextResponse } from "next/server";
 import {
-  searchCoursesForStudent,
+  searchCourses,
+  getAllCourses,
   createCourse,
 } from "@/services/course.service";
+import { getSession } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import { Role } from "@prisma/client";
 
 /**
- * Helper: Extract error message from various error types
- * 
- * @param error - Unknown error object
- * @returns String error message
+ * Resolve instructor ID from session for course creation
+ * Only instructors can create courses
  */
+async function resolveInstructorIdFromSession() {
+  const session = await getSession();
+  if (!session?.userId) return null;
+
+  const user = await prisma.user.findUnique({
+    where: { id: Number(session.userId) },
+    select: { id: true, role: true, deletedAt: true },
+  });
+
+  // Check if user exists, is not deleted, and is an instructor
+  if (user && !user.deletedAt && user.role === Role.INSTRUCTOR) {
+    return user.id;
+  }
+
+  return null;
+}
+
+type RawCourse = {
+  id: number;
+  title: string;
+  description: string;
+  thumbnailUrl: string | null;
+  instructorId: number;
+  price: number | { toString(): string } | null;
+};
+
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) return error.message;
   return "Unexpected error";
@@ -53,14 +81,66 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get("q");
+    const session = await getSession();
+    const currentUserId = session?.userId;
 
-    // TODO: Get actual current user ID from session/auth
-    // For now, using mock user ID
-    const currentUserId = 1;
+    const rawCourses = query
+      ? await searchCourses(query)
+      : await getAllCourses();
 
-    // Service call - returns enriched courses with student's enrollment/progress data
-    // No additional Prisma calls needed; repository handles efficient batch queries
-    const courses = await searchCoursesForStudent(query || "", currentUserId);
+    // Enrich data using Prisma relations
+    const courses = await Promise.all(
+      rawCourses.map(async (c) => {
+        const course = c as RawCourse;
+        const sections = await prisma.courseSection.findMany({
+          where: { courseId: course.id },
+          include: { lessons: true },
+        });
+
+        const instructor = await prisma.user.findUnique({
+          where: { id: course.instructorId },
+          select: { name: true },
+        });
+
+        const enrollment = currentUserId
+          ? await prisma.courseEnrollment.findUnique({
+              where: {
+                courseId_userId: { courseId: course.id, userId: currentUserId },
+              },
+            })
+          : null;
+
+        const cp = currentUserId
+          ? await prisma.courseProgress.findUnique({
+              where: {
+                courseId_userId: { courseId: course.id, userId: currentUserId },
+              },
+            })
+          : null;
+
+        const lessonsCount = sections.reduce(
+          (acc, s) => acc + s.lessons.length,
+          0,
+        );
+
+        return {
+          id: course.id,
+          title: course.title,
+          description: course.description,
+          image: course.thumbnailUrl ?? null,
+
+          instructorName: instructor?.name ?? "Unknown",
+
+          lessonsCount,
+          isEnrolled: !!enrollment,
+          progress: cp ? Number(cp.completionPercentage) : 0,
+          progressStatus: cp?.status ?? "NOT_STARTED",
+
+          price: course.price ? Number(course.price) : 0,
+          isFree: !course.price || Number(course.price) === 0,
+        };
+      }),
+    );
 
     return NextResponse.json(courses);
   } catch (error: unknown) {
@@ -97,11 +177,26 @@ export async function GET(request: Request) {
  */
 export async function POST(request: Request) {
   try {
+    // Authenticate and get instructor ID
+    const instructorId = await resolveInstructorIdFromSession();
+    if (!instructorId) {
+      return NextResponse.json(
+        { error: "Not authenticated or not an instructor" },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
+
+    // Add instructor ID to course data
+    const courseData = {
+      ...body,
+      instructorId,
+    };
 
     // Service layer handles validation
     // (title and description required)
-    const course = await createCourse(body);
+    const course = await createCourse(courseData);
 
     return NextResponse.json(course, { status: 201 });
   } catch (error: unknown) {

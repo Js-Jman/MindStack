@@ -9,12 +9,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar userId ={1} />
+      <Navbar />
       <main
         className={
           isAdminRoute
             ? "w-full"
-            : "max-w-7xl mx-auto px-4 sm:px-6 py-8"
+            : "max-w mx-auto px-4 sm:px-6 py-8"
         }
       >
         {children}

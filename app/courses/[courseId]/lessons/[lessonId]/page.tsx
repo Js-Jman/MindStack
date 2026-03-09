@@ -11,6 +11,7 @@ import {
   ChevronRight,
   PlayCircle,
   FileText,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Layout,
   HelpCircle,
   ArrowLeft,
@@ -123,6 +124,12 @@ export default async function LessonPage({ params }: Props) {
         </div>
  
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <Link
+            href={`/courses/${course.id}`}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-gray-700 hover:bg-white/50 hover:text-purple-600 transition-all whitespace-nowrap border border-gray-200 bg-white/50"
+          >
+            <ArrowLeft size={18} /> Back to Course
+          </Link>
           <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold bg-white text-purple-700 shadow-sm border border-purple-100 whitespace-nowrap">
             <PlayCircle size={18} /> Content
           </button>
@@ -132,12 +139,12 @@ export default async function LessonPage({ params }: Props) {
           >
             <HelpCircle size={18} /> Quiz
           </Link>
-          <Link
+          {/* <Link
             href={`/courses/${course.id}/assignments?lessonId=${lessonRecord.id}`}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-gray-500 hover:bg-white/50 hover:text-purple-600 transition-all whitespace-nowrap"
           >
             <FileText size={18} /> Assignments
-          </Link>
+          </Link> */}
         </div>
  
         <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-6 md:p-10 border border-white/40 shadow-xl space-y-10">
@@ -204,3 +211,4 @@ export default async function LessonPage({ params }: Props) {
     </div>
   );
 }
+ 

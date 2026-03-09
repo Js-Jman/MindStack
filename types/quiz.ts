@@ -1,4 +1,4 @@
-import { Prisma, Quiz, QuizQuestion, QuizOption, QuizAttempt } from "@prisma/client";
+import { Prisma, Quiz, QuizQuestion, QuizOption } from "@prisma/client";
 
 // payload when fetching a quiz with its questions and options
 export type FullQuiz = Prisma.QuizGetPayload<{
@@ -30,6 +30,6 @@ export type CreateOptionInput = {
   isCorrect: boolean;
 };
 
-export type QuizAttemptRecord = QuizAttempt;
+
 
 export type QuizQuestionWithOptions = QuizQuestion & { options: QuizOption[] };

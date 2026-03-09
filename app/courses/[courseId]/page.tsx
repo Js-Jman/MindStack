@@ -1,9 +1,10 @@
 import { prisma } from "@/lib/db";
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Course } from "@/types/course"; // Import your custom type
 import { CheckCircle2, PlayCircle } from "lucide-react"; // Helpful icons
+import { getSession } from "@/lib/auth";
 
 type Params = { courseId: string };
 
@@ -16,7 +17,12 @@ export default async function CoursePage({
   const courseIdNum = Number(courseId);
   if (!Number.isInteger(courseIdNum)) return notFound();
 
-  const currentUserId = 13;
+  const session = await getSession();
+  if (!session?.userId) {
+    redirect("/signin");
+  }
+
+  const currentUserId = Number(session.userId);
 
   const courseData = await prisma.course.findUnique({
     where: { id: courseIdNum },
@@ -55,6 +61,15 @@ export default async function CoursePage({
       <Navbar />
 
       <div className="max-w-6xl mx-auto px-4 py-10 space-y-10">
+        <div>
+          <Link
+            href="/student"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-purple-200 text-purple-700 font-semibold hover:bg-purple-50 transition-colors"
+          >
+            Back to Dashboard
+          </Link>
+        </div>
+
         {/* Course Hero Card */}
         <div className="rounded-2xl p-8 bg-gradient-to-r from-purple-600 to-indigo-700 text-white shadow-xl">
           <div className="flex justify-between items-start flex-wrap gap-4">

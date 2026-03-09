@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { User } from "@/types/user";
+import { useToast } from "@/components/ui/toast";
 
 export type AuthUser = Pick<User, 'id' | 'name' | 'email' | 'role'>;
 
@@ -10,6 +11,7 @@ export function useAuth() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { toast } = useToast();
 
   const fetchMe = useCallback(async () => {
     try {
@@ -47,15 +49,17 @@ export function useAuth() {
     const data = await res.json();
     setUser(data.user);
 
-    // Redirect based on role
-    if (data.user.role === "INSTRUCTOR") {
-      router.push("/instructor");
+    // Use full-page navigation to avoid race conditions with HttpOnly cookie.
+    if (data.user.role === "ADMIN") {
+      window.location.href = "/admin";
+    } else if (data.user.role === "INSTRUCTOR") {
+      window.location.href = "/instructor";
     } else {
-      router.push("/student");
+      window.location.href = "/student";
     }
 
     return data.user as AuthUser;
-  }, [router]);
+  }, []);
 
   const signout = useCallback(async () => {
     await fetch("/api/auth/signout", {
@@ -64,8 +68,9 @@ export function useAuth() {
     });
     
     setUser(null);
+    toast("Signed out successfully", "success");
     router.push("/signin");
-  }, [router]);
+  }, [router, toast]);
 
   return { user, loading, signin, signout, refetch: fetchMe };
 }

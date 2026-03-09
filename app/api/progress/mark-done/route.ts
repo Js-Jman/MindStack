@@ -13,7 +13,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { markLessonDone } from "@/services/progress.service";
-import { getSessionFromRequest } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 
 /**
  * POST /api/progress/mark-done
@@ -59,13 +59,13 @@ import { getSessionFromRequest } from "@/lib/auth";
  */
 export async function POST(req: NextRequest) {
   try {
-    // Step 1: Authenticate user
-    const session = await getSessionFromRequest(req);
+    const session = await getSession();
     if (!session?.userId) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
     const studentId = Number(session.userId);
+    // const studentId = 13;
 
     // Step 2: Extract and parse request body
     const body = await req.json();

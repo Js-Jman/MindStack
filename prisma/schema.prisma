@@ -27,7 +27,6 @@ model User {
   courses               Course[]               @relation("InstructorCourses")
   lessonProgress        LessonProgress[]
   passwordResetTokens   PasswordResetToken[]
-  quizAttempts          QuizAttempt[]
   userProfile           UserProfile?
 
   @@index([role])
@@ -160,7 +159,6 @@ model Quiz {
   createdAt DateTime       @default(now()) @map("created_at")
   updatedAt DateTime       @updatedAt @map("updated_at")
   deletedAt DateTime?      @map("deleted_at")
-  attempts  QuizAttempt[]
   questions QuizQuestion[]
   lesson    Lesson         @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
@@ -192,20 +190,7 @@ model QuizOption {
   @@map("quiz_options")
 }
 
-model QuizAttempt {
-  id          Int       @id @default(autoincrement()) @db.UnsignedInt
-  quizId      Int       @map("quiz_id") @db.UnsignedInt
-  userId      Int       @map("user_id") @db.UnsignedInt
-  score       Decimal?  @db.Decimal(5, 2)
-  startedAt   DateTime  @map("started_at")
-  completedAt DateTime? @map("completed_at")
-  quiz        Quiz      @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([quizId], map: "quiz_attempts_quiz_id_fkey")
-  @@index([userId], map: "quiz_attempts_user_id_fkey")
-  @@map("quiz_attempts")
-}
 
 model CourseAssignment {
   id          Int                    @id @default(autoincrement()) @db.UnsignedInt
@@ -247,7 +232,7 @@ model LessonProgress {
   userId         Int            @map("user_id") @db.UnsignedInt
   status         ProgressStatus
   lastAccessedAt DateTime?      @map("last_accessed_at")
-  completedAt      DateTime       @updatedAt @map("completed_at")
+  completedAt    DateTime?      @map("completed_at")
   updatedAt      DateTime       @updatedAt @map("updated_at")
   lesson         Lesson         @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -255,7 +240,6 @@ model LessonProgress {
   @@unique([lessonId, userId])
   @@index([userId], map: "lesson_progress_user_id_fkey")
   @@map("lesson_progress")
-  @@index([userId])
 }
 
 model CourseProgress {
