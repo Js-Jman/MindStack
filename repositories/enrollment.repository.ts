@@ -304,3 +304,110 @@ export async function countEnrollmentsByCourse(courseId: number) {
     },
   });
 }
+
+/**
+ * Count total enrollments across all courses by an instructor
+ * 
+ * Used for instructor dashboard statistics
+ * 
+ * @param instructorId - ID of the instructor
+ * @returns Total number of active enrollments in instructor's courses
+ */
+export async function countEnrollmentsByInstructor(instructorId: number) {
+  return await prisma.courseEnrollment.count({
+    where: {
+      course: {
+        instructorId,
+        deletedAt: null, // Only count non-deleted courses
+      },
+      status: { not: EnrollmentStatus.DROPPED },
+    },
+  });
+}
+
+/**
+ * Calculate total revenue from enrollments for an instructor
+ * 
+ * Revenue is calculated as the sum of course prices for all active enrollments
+ * in the instructor's courses. Only includes courses with a price set.
+ * 
+ * @param instructorId - ID of the instructor
+ * @returns Total revenue as a number (rounded to 2 decimal places)
+ */
+export async function calculateRevenueByInstructor(instructorId: number) {
+  // First get all enrollments with course prices
+  const enrollments = await prisma.courseEnrollment.findMany({
+    where: {
+      course: {
+        instructorId,
+        deletedAt: null,
+        price: { not: null },
+      },
+      status: { not: EnrollmentStatus.DROPPED },
+    },
+    select: {
+      course: {
+        select: {
+          price: true,
+        },
+      },
+    },
+  });
+
+  // Calculate total revenue
+  const totalRevenue = enrollments.reduce((sum, enrollment) => {
+    const price = enrollment.course.price ? Number(enrollment.course.price) : 0;
+    return sum + price;
+  }, 0);
+
+  return Math.round(totalRevenue * 100) / 100; // Round to 2 decimal places
+}
+
+/**
+ * Get enrollment chart data for an instructor
+ * 
+ * Returns monthly enrollment counts for the last 12 months
+ * Used for dashboard charts showing enrollment trends
+ * 
+ * @param instructorId - ID of the instructor
+ * @returns Array of objects with month (YYYY-MM) and count
+ */
+export async function getEnrollmentChartDataByInstructor(instructorId: number) {
+  // Get enrollments from the last 12 months
+  const twelveMonthsAgo = new Date();
+  twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+
+  const enrollments = await prisma.courseEnrollment.findMany({
+    where: {
+      course: {
+        instructorId,
+        deletedAt: null,
+      },
+      status: { not: EnrollmentStatus.DROPPED },
+      enrolledAt: {
+        gte: twelveMonthsAgo,
+      },
+    },
+    select: {
+      enrolledAt: true,
+    },
+    orderBy: {
+      enrolledAt: 'asc',
+    },
+  });
+
+  // Group by month and count
+  const monthlyData: { [key: string]: number } = {};
+
+  enrollments.forEach((enrollment) => {
+    const date = new Date(enrollment.enrolledAt);
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    monthlyData[monthKey] = (monthlyData[monthKey] || 0) + 1;
+  });
+
+  // Convert to array format for chart
+  return Object.entries(monthlyData).map(([month, count]) => ({
+    month,
+    count,
+  }));
+}

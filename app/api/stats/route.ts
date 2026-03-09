@@ -12,36 +12,34 @@
  */
 
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+import { getSession } from "@/lib/auth";
 import { getStudentStats } from "@/services/enrollment.service";
 
-/**
- * GET /api/stats?studentId=1
- * 
- * Retrieves aggregated learning statistics for a student.
- * 
- * Query Parameters:
- * - studentId (required): ID of the student
- * 
- * Response:
- * {
- *   "totalEnrollments": 5,        // Total courses enrolled
- *   "completedCourses": 2,        // Courses with 100% completion
- *   "inProgressCourses": 3,       // Courses being taken (0-99% completion)
- *   "averageProgress": 65         // Average completion % across all courses
- * }
- * 
- * @param req - Next.js request object
- * @returns JSON statistics object
- */
+async function resolveStudentIdFromSession() {
+  const session = await getSession();
+  if (!session?.userId) return null;
+
+  const byId = await prisma.user.findUnique({
+    where: { id: Number(session.userId) },
+    select: { id: true, deletedAt: true },
+  });
+  if (byId && !byId.deletedAt) return byId.id;
+
+  const byEmail = await prisma.user.findUnique({
+    where: { email: session.email },
+    select: { id: true, deletedAt: true },
+  });
+  if (byEmail && !byEmail.deletedAt) return byEmail.id;
+
+  return null;
+}
+
 export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const studentIdParam = searchParams.get("studentId");
-    const studentId = Number(studentIdParam);
-
-    // Validate input
-    if (!Number.isInteger(studentId) || studentId <= 0) {
-      return NextResponse.json({ error: "Invalid studentId" }, { status: 400 });
+    const studentId = await resolveStudentIdFromSession();
+    if (!studentId) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
     // Service call - returns aggregated statistics

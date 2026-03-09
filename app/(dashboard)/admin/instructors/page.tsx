@@ -33,7 +33,7 @@ export default async function InstructorsPage() {
   }));
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 max-w mx-auto">
       <div className="px-4">
         <h2 className="text-2xl font-bold text-slate-900">Instructor Management</h2>
         <p className="text-sm text-slate-500">

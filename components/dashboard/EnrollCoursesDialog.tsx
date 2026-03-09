@@ -1,25 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { X, AlertCircle } from "lucide-react";
 import { AvailableCourseCard } from "./AvailableCourseCard";
+import { useToast } from "@/components/ui/toast";
 
 interface Course {
   id: number;
   title: string;
   description: string;
   image?: string;
+  isEnrolled?: boolean;
   instructor?: {
     name?: string;
   };
-  level?: string;
-  duration?: number;
   lessonCount?: number;
-  rating?: number;
 }
 
 interface EnrollCoursesDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  studentId: number;
   enrolledCourseIds?: number[];
   onEnrollSuccess?: () => void;
 }
@@ -27,7 +25,6 @@ interface EnrollCoursesDialogProps {
 export function EnrollCoursesDialog({
   isOpen,
   onClose,
-  studentId,
   enrolledCourseIds = [],
   onEnrollSuccess,
 }: EnrollCoursesDialogProps) {
@@ -35,13 +32,22 @@ export function EnrollCoursesDialog({
   const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
   const [enrollingCourseId, setEnrollingCourseId] = useState<number | null>(
     null
   );
   const [searchQuery, setSearchQuery] = useState("");
+  const [locallyEnrolledIds, setLocallyEnrolledIds] = useState<number[]>([]);
+
+  const isCourseEnrolled = (course: Course) =>
+    enrolledCourseIds.includes(course.id) ||
+    locallyEnrolledIds.includes(course.id) ||
+    Boolean(course.isEnrolled);
 
   useEffect(() => {
     if (isOpen) {
+      setLocallyEnrolledIds([]);
+      setError(null);
       fetchAvailableCourses();
     }
   }, [isOpen]);
@@ -49,11 +55,13 @@ export function EnrollCoursesDialog({
   useEffect(() => {
     const filtered = courses.filter(
       (course) =>
-        course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        course.description.toLowerCase().includes(searchQuery.toLowerCase())
+        !isCourseEnrolled(course) &&
+        (course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          course.description.toLowerCase().includes(searchQuery.toLowerCase()))
     );
     setFilteredCourses(filtered);
-  }, [courses, searchQuery]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [courses, searchQuery, enrolledCourseIds, locallyEnrolledIds]);
 
   const fetchAvailableCourses = async () => {
     try {
@@ -79,24 +87,41 @@ export function EnrollCoursesDialog({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          studentId,
           courseId,
         }),
       });
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || "Failed to enroll");
+        const message = data.error || "Failed to enroll";
+
+        // Keep UI in sync if server says user was already enrolled.
+        if (/already enrolled/i.test(message)) {
+          setLocallyEnrolledIds((prev) =>
+            prev.includes(courseId) ? prev : [...prev, courseId]
+          );
+          toast("Already enrolled", "success");
+          if (onEnrollSuccess) {
+            onEnrollSuccess();
+          }
+          return;
+        }
+
+        throw new Error(message);
       }
 
-      // Update the enrolled course IDs
-      enrolledCourseIds.push(courseId);
+      setLocallyEnrolledIds((prev) =>
+        prev.includes(courseId) ? prev : [...prev, courseId]
+      );
 
+      toast("Successfully enrolled", "success");
       if (onEnrollSuccess) {
         onEnrollSuccess();
       }
     } catch (err) {
-      setError((err as Error).message || "Failed to enroll in course");
+      const msg = (err as Error).message || "Failed to enroll in course";
+      setError(msg);
+      toast(msg, "error");
       console.error(err);
     } finally {
       setEnrollingCourseId(null);
@@ -174,11 +199,8 @@ export function EnrollCoursesDialog({
                   description={course.description}
                   image={course.image}
                   instructorName={course.instructor?.name || "Unknown"}
-                  level={course.level}
-                  duration={course.duration}
                   lessonCount={course.lessonCount}
-                  rating={course.rating}
-                  isEnrolled={enrolledCourseIds.includes(course.id)}
+                  isEnrolled={isCourseEnrolled(course)}
                   isLoading={enrollingCourseId === course.id}
                   onEnroll={() => handleEnroll(course.id)}
                 />

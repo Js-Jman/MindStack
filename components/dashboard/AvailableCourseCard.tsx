@@ -1,6 +1,7 @@
 import React from "react";
-import { Star, Users, Clock, Badge } from "lucide-react";
+import { Users, Badge } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 interface AvailableCourseCardProps {
   id: number;
@@ -9,10 +10,7 @@ interface AvailableCourseCardProps {
   image?: string;
   instructorName?: string;
   instructorAvatar?: string;
-  level?: string;
-  duration?: number;
   lessonCount?: number;
-  rating?: number;
   isEnrolled?: boolean;
   onEnroll?: () => void;
   isLoading?: boolean;
@@ -25,19 +23,11 @@ export function AvailableCourseCard({
   image,
   instructorName,
   instructorAvatar,
-  level = "Beginner",
-  duration = 0,
   lessonCount = 0,
-  rating = 0,
   isEnrolled = false,
   onEnroll,
   isLoading = false,
 }: AvailableCourseCardProps) {
-  const levelColors = {
-    Beginner: "bg-green-100 text-green-800",
-    Intermediate: "bg-blue-100 text-blue-800",
-    Advanced: "bg-purple-100 text-purple-800",
-  };
   const learnerCount = (id * 37) % 500 + 50;
 
   return (
@@ -55,22 +45,6 @@ export function AvailableCourseCard({
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <Badge className="w-16 h-16 text-purple-400" />
-          </div>
-        )}
-        <div className="absolute top-3 left-3">
-          <span
-            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
-              levelColors[level as keyof typeof levelColors] ||
-              levelColors.Beginner
-            }`}
-          >
-            {level}
-          </span>
-        </div>
-        {rating > 0 && (
-          <div className="absolute top-3 right-3 bg-white/90 px-3 py-1 rounded-full flex items-center gap-1 shadow-md">
-            <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-            <span className="text-sm font-semibold text-gray-700">{rating}</span>
           </div>
         )}
       </div>
@@ -110,10 +84,6 @@ export function AvailableCourseCard({
         {/* Course Details */}
         <div className="flex flex-wrap gap-3 mb-4 pt-3 border-t border-gray-100 text-xs">
           <div className="flex items-center gap-1 text-gray-600">
-            <Clock className="w-4 h-4 text-purple-500" />
-            <span>{duration}h</span>
-          </div>
-          <div className="flex items-center gap-1 text-gray-600">
             <Badge className="w-4 h-4 text-blue-500" />
             <span>{lessonCount} lessons</span>
           </div>
@@ -124,26 +94,35 @@ export function AvailableCourseCard({
         </div>
 
         {/* Enroll Button */}
-        <button
-          onClick={onEnroll}
-          disabled={isEnrolled || isLoading}
-          className={`w-full py-2 rounded-lg font-semibold transition-all duration-200 text-sm ${
-            isEnrolled
-              ? "bg-gray-100 text-gray-500 cursor-not-allowed"
-              : "bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:shadow-lg hover:shadow-purple-300 active:scale-95"
-          } ${isLoading ? "opacity-75" : ""}`}
-        >
-          {isLoading ? (
-            <span className="inline-flex items-center gap-2">
-              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              Enrolling...
-            </span>
-          ) : isEnrolled ? (
-            "Already Enrolled"
-          ) : (
-            "Enroll Now"
-          )}
-        </button>
+        <div className="grid grid-cols-2 gap-2">
+          <Link
+            href={`/courses/${id}`}
+            className="inline-flex items-center justify-center py-2 rounded-lg border border-purple-200 text-purple-700 font-semibold text-sm hover:bg-purple-50 transition-colors"
+          >
+            View Details
+          </Link>
+
+          <button
+            onClick={onEnroll}
+            disabled={isEnrolled || isLoading}
+            className={`w-full py-2 rounded-lg font-semibold transition-all duration-200 text-sm ${
+              isEnrolled
+                ? "bg-gray-100 text-gray-500 cursor-not-allowed"
+                : "bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:shadow-lg hover:shadow-purple-300 active:scale-95"
+            } ${isLoading ? "opacity-75" : ""}`}
+          >
+            {isLoading ? (
+              <span className="inline-flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Enrolling...
+              </span>
+            ) : isEnrolled ? (
+              "Enrolled"
+            ) : (
+              "Enroll Now"
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

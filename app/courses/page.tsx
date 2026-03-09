@@ -83,7 +83,7 @@ export default function CoursesPage() {
     <div className="min-h-screen bg-[#f7f8fc]">
       <Navbar />
 
-      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6 flex gap-6">
+      <div className="max-w mx-auto px-2 sm:px-6 lg:px-8 py-6 flex gap-6">
         <div className="hidden md:block w-64 shrink-0">
           {/* <Sidebar /> */}
         </div>

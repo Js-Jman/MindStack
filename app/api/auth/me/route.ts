@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
-import { Roles } from "@/types/user";
+import { COOKIE_NAME, getSession } from "@/lib/auth";
+import { prisma } from "@/lib/db";
 
 type AuthMeResponse = {
   id: number;
   name: string;
   email: string;
-  role: Roles;
+  role: string;
 };
 
 export async function GET(): Promise<NextResponse<AuthMeResponse | { error: string }>> {
@@ -15,13 +15,30 @@ export async function GET(): Promise<NextResponse<AuthMeResponse | { error: stri
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const response: AuthMeResponse = {
-      id: session.userId,
-      name: session.name,
-      email: session.email,
-      role: session.role,
-    };
-    return NextResponse.json(response);
+
+    const user = await prisma.user.findUnique({
+      where: { id: Number(session.userId) },
+      select: { id: true, name: true, email: true, role: true, deletedAt: true },
+    });
+
+    if (!user || user.deletedAt) {
+      const res = NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      res.cookies.set(COOKIE_NAME, "", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 0,
+      });
+      return res;
+    }
+
+    return NextResponse.json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    });
   } catch (error) {
     console.error("Me route error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

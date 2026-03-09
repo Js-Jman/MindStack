@@ -41,10 +41,6 @@ export type Course = {
 
 
   lessonCount?: number;
-  rating?: number;
-  duration?: number;
-  level?: string;
-  category?: string;
 };
 
 export type Instructor = {
@@ -53,9 +49,6 @@ export type Instructor = {
   email: string;
 };
 
-export type CourseWithInstructor = Course & {
-  instructor: Instructor;
-};
 
 export type CreateCourseInput = {
   instructorId: number;

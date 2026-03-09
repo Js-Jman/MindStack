@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { X, User, Mail, Shield, Save, KeyRound, Eye, EyeOff } from "lucide-react";
+import { useToast } from "@/components/ui/toast";
 
 interface UserProfile {
   id: number;
@@ -24,7 +25,7 @@ export default function ProfileSheet({ isOpen, onClose, userId }: ProfileSheetPr
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({ name: "", email: "" });
   const [passwordForm, setPasswordForm] = useState({ newPassword: "", confirmPassword: "" });
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const { toast } = useToast();
   const sheetRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -35,7 +36,7 @@ export default function ProfileSheet({ isOpen, onClose, userId }: ProfileSheetPr
         setUser(data);
         setForm({ name: data.name, email: data.email });
       })
-      .catch(() => setMessage({ type: "error", text: "Failed to load profile" }));
+      .catch(() => toast("Failed to load profile", "error"));
   }, [isOpen, userId]);
 
   // Close on outside click
@@ -51,7 +52,6 @@ export default function ProfileSheet({ isOpen, onClose, userId }: ProfileSheetPr
 
   const handleSave = async () => {
     setIsSaving(true);
-    setMessage(null);
     try {
       const res = await fetch(`/api/users/${userId}`, {
         method: "PATCH",
@@ -62,9 +62,9 @@ export default function ProfileSheet({ isOpen, onClose, userId }: ProfileSheetPr
       const updated = await res.json();
       setUser(updated);
       setIsEditing(false);
-      setMessage({ type: "success", text: "Profile updated successfully" });
+      toast("Profile updated successfully", "success");
     } catch {
-      setMessage({ type: "error", text: "Failed to update profile" });
+      toast("Failed to update profile", "error");
     } finally {
       setIsSaving(false);
     }
@@ -72,15 +72,14 @@ export default function ProfileSheet({ isOpen, onClose, userId }: ProfileSheetPr
 
   const handlePasswordReset = async () => {
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setMessage({ type: "error", text: "Passwords do not match" });
+      toast("Passwords do not match", "error");
       return;
     }
     if (passwordForm.newPassword.length < 6) {
-      setMessage({ type: "error", text: "Password must be at least 6 characters" });
+      toast("Password must be at least 6 characters", "error");
       return;
     }
     setIsSaving(true);
-    setMessage(null);
     try {
       const res = await fetch(`/api/users/${userId}`, {
         method: "PATCH",
@@ -90,9 +89,9 @@ export default function ProfileSheet({ isOpen, onClose, userId }: ProfileSheetPr
       if (!res.ok) throw new Error("Failed to update password");
       setPasswordForm({ newPassword: "", confirmPassword: "" });
       setShowPasswordSection(false);
-      setMessage({ type: "success", text: "Password updated successfully" });
+      toast("Password updated successfully", "success");
     } catch {
-      setMessage({ type: "error", text: "Failed to update password" });
+      toast("Failed to update password", "error");
     } finally {
       setIsSaving(false);
     }
@@ -142,18 +141,6 @@ export default function ProfileSheet({ isOpen, onClose, userId }: ProfileSheetPr
             </span>
           </div>
 
-          {/* Message */}
-          {message && (
-            <div
-              className={`text-sm px-4 py-2 rounded-lg ${
-                message.type === "success"
-                  ? "bg-green-50 text-green-700 border border-green-200"
-                  : "bg-red-50 text-red-700 border border-red-200"
-              }`}
-            >
-              {message.text}
-            </div>
-          )}
 
           {/* Profile fields */}
           <div className="space-y-4">
@@ -220,7 +207,7 @@ export default function ProfileSheet({ isOpen, onClose, userId }: ProfileSheetPr
               </>
             ) : (
               <button
-                onClick={() => { setIsEditing(true); setMessage(null); }}
+                onClick={() => { setIsEditing(true); }}
                 className="flex-1 px-4 py-2 border text-sm font-medium rounded-lg hover:bg-muted transition-colors"
               >
                 Edit Profile
@@ -234,8 +221,8 @@ export default function ProfileSheet({ isOpen, onClose, userId }: ProfileSheetPr
           {/* Password section */}
           <div className="space-y-3">
             <button
-              onClick={() => { setShowPasswordSection((p) => !p); setMessage(null); }}
-              className="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm font-medium hover:bg-muted transition-colors"
+              onClick={() => { setShowPasswordSection((p) => !p); }}
+              className="w/full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm font-medium hover:bg-muted transition-colors"
             >
               <span className="flex items-center gap-2">
                 <KeyRound className="w-4 h-4" />

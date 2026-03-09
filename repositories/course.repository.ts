@@ -318,8 +318,15 @@ export async function findEnrolledCoursesByStudent(
 export async function create(data: CreateCourseInput): Promise<CourseRepositoryResult> {
   const course = await prisma.course.create({
     data: {
-      ...data,
+      title: data.title,
+      description: data.description,
+      thumbnailUrl: data.thumbnailUrl,
+      introVideoUrl: data.introVideoUrl,
+      price: data.price,
       isPublished: data.isPublished ?? false,
+      instructor: {
+        connect: { id: data.instructorId }
+      },
     },
     include: {
       instructor: { select: instructorSelect },
@@ -497,4 +504,43 @@ export async function searchCoursesWithEnrichment(
       image: course.thumbnailUrl,
     };
   });
+}
+
+/**
+ * Count total courses by instructor
+ *
+ * @param instructorId - ID of the instructor
+ * @returns Number of courses
+ */
+export async function countCoursesByInstructor(instructorId: number): Promise<number> {
+  return await prisma.course.count({
+    where: { instructorId, deletedAt: null },
+  });
+}
+
+/**
+ * Get recent courses by instructor
+ *
+ * @param instructorId - ID of the instructor
+ * @param limit - Number of courses to return
+ * @returns Array of recent courses
+ */
+export async function findRecentCoursesByInstructor(instructorId: number, limit: number = 5): Promise<CourseRepositoryResult[]> {
+  const courses = await prisma.course.findMany({
+    where: { instructorId, deletedAt: null },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: {
+      instructor: { select: instructorSelect },
+      sections: { include: { lessons: { select: { id: true, title: true } } } },
+      assignments: true,
+      enrollments: true,
+      courseProgress: true,
+    },
+  });
+
+  return courses.map(withLessonCount).map(course => ({
+    ...course,
+    price: course.price ? Number(course.price) : null,
+  })) as CourseRepositoryResult[];
 }
