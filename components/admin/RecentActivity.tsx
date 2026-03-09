@@ -7,6 +7,8 @@ export const RecentActivity = () => {
     { id: 3, icon: CheckCircle, text: "Ticket #1204 resolved", time: "1 day ago", color: "text-green-600" },
   ];
 
+
+  
   return (
     <div className="bg-white p-6 rounded-xl border shadow-sm h-full">
       <h3 className="font-semibold mb-6 text-slate-800">Recent Activity</h3>
