@@ -13,7 +13,6 @@ async function resetDatabase() {
   await prisma.lessonProgress.deleteMany();
   await prisma.quizOption.deleteMany();
   await prisma.quizQuestion.deleteMany();
-  await prisma.quizAttempt.deleteMany();
   await prisma.quiz.deleteMany();
   await prisma.lessonContent.deleteMany();
   await prisma.lesson.deleteMany();

@@ -36,7 +36,7 @@ export default async function UsersPage() {
   }));
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 max-w mx-auto">
       <div className="px-4">
         <h2 className="text-2xl font-bold text-slate-900">User Management</h2>
         <p className="text-sm text-slate-500">Manage student accounts and monitor course engagement.</p>

@@ -2,7 +2,14 @@ import { NextResponse } from "next/server";
 import { COOKIE_NAME, getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
-export async function GET() {
+type AuthMeResponse = {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+};
+
+export async function GET(): Promise<NextResponse<AuthMeResponse | { error: string }>> {
   try {
     const session = await getSession();
     if (!session) {

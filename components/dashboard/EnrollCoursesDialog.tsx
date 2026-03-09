@@ -11,10 +11,7 @@ interface Course {
   instructor?: {
     name?: string;
   };
-  level?: string;
-  duration?: number;
   lessonCount?: number;
-  rating?: number;
 }
 
 interface EnrollCoursesDialogProps {
@@ -61,6 +58,7 @@ export function EnrollCoursesDialog({
           course.description.toLowerCase().includes(searchQuery.toLowerCase()))
     );
     setFilteredCourses(filtered);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courses, searchQuery, enrolledCourseIds, locallyEnrolledIds]);
 
   const fetchAvailableCourses = async () => {
@@ -117,7 +115,8 @@ export function EnrollCoursesDialog({
         onEnrollSuccess();
       }
     } catch (err) {
-      setError((err as Error).message || "Failed to enroll in course");
+      const msg = (err as Error).message || "Failed to enroll in course";
+      setError(msg);
       console.error(err);
     } finally {
       setEnrollingCourseId(null);
@@ -195,10 +194,7 @@ export function EnrollCoursesDialog({
                   description={course.description}
                   image={course.image}
                   instructorName={course.instructor?.name || "Unknown"}
-                  level={course.level}
-                  duration={course.duration}
                   lessonCount={course.lessonCount}
-                  rating={course.rating}
                   isEnrolled={isCourseEnrolled(course)}
                   isLoading={enrollingCourseId === course.id}
                   onEnroll={() => handleEnroll(course.id)}

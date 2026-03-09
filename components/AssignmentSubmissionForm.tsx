@@ -39,6 +39,7 @@ export default function AssignmentSubmissionForm({
 
   useEffect(() => {
     fetchSubmission();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assignmentId]);
 
   async function fetchSubmission() {

@@ -41,10 +41,6 @@ export type Course = {
 
 
   lessonCount?: number;
-  rating?: number;
-  duration?: number;
-  level?: string;
-  category?: string;
 };
 
 export type Instructor = {
@@ -53,15 +49,13 @@ export type Instructor = {
   email: string;
 };
 
-export type CourseWithInstructor = Course & {
-  instructor: Instructor;
-};
 
 export type CreateCourseInput = {
   instructorId: number;
   title: string;
   description: string;
   thumbnailUrl?: string | null;
+  introVideoUrl?: string | null;
   price?: number | null;
   isPublished?: boolean;
 };

@@ -16,15 +16,18 @@ export default function SigninPage() {
     e.preventDefault();
     setError("");
     if (!form.email || !form.password) {
-      setError("Email and password are required.");
+      const msg = "Email and password are required.";
+      setError(msg);
       return;
     }
     setLoading(true);
     try {
       await signin(form.email, form.password);
       // signin() handles redirect based on role
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
-      setError(e.message);
+      const msg = e.message || "Sign in failed";
+      setError(msg);
     } finally {
       setLoading(false);
     }

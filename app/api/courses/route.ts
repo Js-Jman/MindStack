@@ -1,11 +1,47 @@
+/**
+ * @file GET /api/courses - Fetch all or search courses
+ *      POST /api/courses - Create a new course
+ * 
+ * This route handler orchestrates HTTP requests for course operations.
+ * 
+ * Responsibilities (API Layer):
+ * 1. Extract and validate HTTP request data (query params, body)
+ * 2. Authenticate/authorize the user
+ * 3. Call service layer with validated inputs
+ * 4. Format responses according to API contract
+ * 5. Map business logic errors to HTTP status codes
+ */
+
 import { NextResponse } from "next/server";
 import {
+  searchCourses,
   getAllCourses,
   createCourse,
-  searchCourses,
 } from "@/services/course.service";
-import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import { Role } from "@prisma/client";
+
+/**
+ * Resolve instructor ID from session for course creation
+ * Only instructors can create courses
+ */
+async function resolveInstructorIdFromSession() {
+  const session = await getSession();
+  if (!session?.userId) return null;
+
+  const user = await prisma.user.findUnique({
+    where: { id: Number(session.userId) },
+    select: { id: true, role: true, deletedAt: true },
+  });
+
+  // Check if user exists, is not deleted, and is an instructor
+  if (user && !user.deletedAt && user.role === Role.INSTRUCTOR) {
+    return user.id;
+  }
+
+  return null;
+}
 
 type RawCourse = {
   id: number;
@@ -21,6 +57,26 @@ function getErrorMessage(error: unknown): string {
   return "Unexpected error";
 }
 
+/**
+ * GET /api/courses?q=search_term
+ * 
+ * Fetches published courses, optionally filtered by search query.
+ * Enriches response with current user's enrollment and progress data.
+ * 
+ * Query Parameters:
+ * - q (optional): Search query for title/description filtering
+ * 
+ * Response:
+ * - Array of course objects with:
+ *   - Course info (id, title, description, price)
+ *   - Instructor details
+ *   - Course structure (lessons count, sections)
+ *   - User enrollment status (isEnrolled)
+ *   - User progress (progress %, progressStatus)
+ * 
+ * @param request - Next.js request object
+ * @returns JSON array of courses
+ */
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -91,18 +147,63 @@ export async function GET(request: Request) {
     console.error("Error fetching courses:", error);
     return NextResponse.json(
       { error: getErrorMessage(error) || "Failed to fetch courses" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
 
+/**
+ * POST /api/courses
+ * 
+ * Creates a new course. Requires instructor/admin authentication.
+ * 
+ * Request Body:
+ * {
+ *   "title": "Course Title",
+ *   "description": "Course description",
+ *   "instructorId": 1,
+ *   "price": 99.99,
+ *   "isPublished": false
+ * }
+ * 
+ * Response:
+ * - 201: Created course object
+ * - 400: Validation error (missing required fields)
+ * - 401: Unauthorized
+ * - 500: Server error
+ * 
+ * @param request - Next.js request object
+ * @returns JSON of created course
+ */
 export async function POST(request: Request) {
   try {
+    // Authenticate and get instructor ID
+    const instructorId = await resolveInstructorIdFromSession();
+    if (!instructorId) {
+      return NextResponse.json(
+        { error: "Not authenticated or not an instructor" },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
-    const course = await createCourse(body);
+
+    // Add instructor ID to course data
+    const courseData = {
+      ...body,
+      instructorId,
+    };
+
+    // Service layer handles validation
+    // (title and description required)
+    const course = await createCourse(courseData);
+
     return NextResponse.json(course, { status: 201 });
   } catch (error: unknown) {
     console.error("Error creating course:", error);
-    return NextResponse.json({ error: getErrorMessage(error) }, { status: 400 });
+    return NextResponse.json(
+      { error: getErrorMessage(error) },
+      { status: 400 }
+    );
   }
 }
