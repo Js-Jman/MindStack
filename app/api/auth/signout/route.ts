@@ -1,4 +1,3 @@
-// app/api/auth/signout/route.ts
 import { NextResponse } from "next/server";
 import { COOKIE_NAME } from "@/lib/auth";
 
