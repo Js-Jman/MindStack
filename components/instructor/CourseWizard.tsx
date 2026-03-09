@@ -4,7 +4,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, BookOpen, FileText, HelpCircle, Save, ChevronRight, Edit, PlusCircle } from "lucide-react";
-import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -132,7 +131,6 @@ export function CourseWizard({ courseId }: CourseWizardProps) {
     }
   }, [isEdit, courseId]);
 
-  const { toast } = useToast();
 
   const handleSave = async () => {
     setIsSubmitting(true);
@@ -152,7 +150,6 @@ export function CourseWizard({ courseId }: CourseWizardProps) {
       }
 
       const course = await courseResponse.json();
-      toast(isEdit ? "Course updated successfully" : "Course created successfully", "success");
 
       // when editing we don't recreate lessons/quizzes; only create new ones for simplicity
       if (isEdit) {
@@ -173,7 +170,6 @@ export function CourseWizard({ courseId }: CourseWizardProps) {
         });
         if (!res.ok) {
           const txt = await res.text();
-          toast(`Lesson "${lesson.title}" not saved: ${txt}`, "error");
         }
       }
 
@@ -201,7 +197,6 @@ export function CourseWizard({ courseId }: CourseWizardProps) {
 
         if (!quizResponse.ok) {
           const txt = await quizResponse.text();
-          toast(`Quiz "${quiz.title}" failed: ${txt}`, "error");
         }
 
         const createdQuiz = await quizResponse.json();
@@ -221,7 +216,6 @@ export function CourseWizard({ courseId }: CourseWizardProps) {
           });
           if (!questionResponse.ok) {
             const txt = await questionResponse.text();
-            toast(`Question not saved: ${txt}`, "error");
           }
         }
       }
@@ -229,10 +223,6 @@ export function CourseWizard({ courseId }: CourseWizardProps) {
       router.push("/instructor/courses");
     } catch (error) {
       console.error("Error creating course:", error);
-      toast(
-        error instanceof Error ? error.message : "Failed to save course",
-        "error"
-      );
     } finally {
       setIsSubmitting(false);
     }

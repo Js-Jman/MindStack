@@ -3,7 +3,6 @@
 import Navbar from "@/components/Navbar";
 import { SearchBar } from "@/components/dashboard/SearchBar";
 import React, { useState, useEffect } from "react";
-import { useToast } from "@/components/ui/toast";
 
 interface Course {
   id: number;
@@ -55,17 +54,14 @@ export default function Page() {
   const [isLoadingCourses, setIsLoadingCourses] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { toast } = useToast();
 
   useEffect(() => {
     // Landing page should always start as public, clear any cached auth cookie.
     void fetch("/api/auth/signout", {
       method: "POST",
       credentials: "include",
-    }).then(() => {
-      toast("Signed out", "success");
     });
-  }, [toast]);
+  });
 
   useEffect(() => {
     (async () => {

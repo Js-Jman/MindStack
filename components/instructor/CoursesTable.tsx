@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, Edit, Trash2, Eye, EyeOff, Users, BookOpen } from "lucide-react";
-import { cn } from "@/lib/utils";import { useToast } from "@/components/ui/toast";
+import { cn } from "@/lib/utils";
 interface CourseTableRow {
   id: number;
   title: string;
@@ -36,7 +36,6 @@ export const CoursesTable = ({ data = [] }: CoursesTableProps) => {
     course.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const { toast } = useToast();
   const togglePublish = async (course: CourseTableRow) => {
     try {
       setBusyCourseId(course.id);
@@ -56,10 +55,8 @@ export const CoursesTable = ({ data = [] }: CoursesTableProps) => {
             : row
         )
       );
-      toast("Course status updated", "success");
     } catch (error) {
       console.error("Error updating course:", error);
-      toast("Unable to change publish status", "error");
     } finally {
       setBusyCourseId(null);
     }
@@ -75,10 +72,8 @@ export const CoursesTable = ({ data = [] }: CoursesTableProps) => {
       const res = await fetch(`/api/courses/${courseId}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete course");
       setRows((prev) => prev.filter((row) => row.id !== courseId));
-      toast("Course deleted", "success");
     } catch (error) {
       console.error("Error deleting course:", error);
-      toast("Unable to delete course", "error");
     } finally {
       setBusyCourseId(null);
     }

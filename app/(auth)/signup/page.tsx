@@ -4,11 +4,9 @@ import { useState } from "react";
 import { Brain, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/components/ui/toast";
 
 export default function SignupPage() {
   const router = useRouter();
-  const { toast } = useToast();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -25,13 +23,11 @@ export default function SignupPage() {
     if (!form.name || !form.email || !form.password) {
       const msg = "All fields are required.";
       setError(msg);
-      toast(msg, "error");
       return;
     }
     if (form.password.length < 8) {
       const msg = "Password must be at least 8 characters.";
       setError(msg);
-      toast(msg, "error");
       return;
     }
     setLoading(true);
@@ -44,7 +40,6 @@ export default function SignupPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Sign up failed");
 
-      toast("Account created successfully", "success");
       // Redirect based on role
       if (data.user.role === "INSTRUCTOR") {
         router.push("/instructor");
@@ -55,7 +50,6 @@ export default function SignupPage() {
     } catch (e: any) {
       const msg = e.message || "Sign up failed";
       setError(msg);
-      toast(msg, "error");
     } finally {
       setLoading(false);
     }
