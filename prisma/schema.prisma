@@ -97,6 +97,7 @@ model CourseSection {
 
   @@unique([courseId, sectionOrder])
   @@map("course_sections")
+  @@index([courseId])
 }
 
 model Lesson {
@@ -233,6 +234,7 @@ model LessonProgress {
 
   @@unique([lessonId, userId])
   @@map("lesson_progress")
+  @@index([userId])
 }
 
 model CourseProgress {

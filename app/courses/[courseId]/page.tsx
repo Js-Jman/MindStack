@@ -2,6 +2,8 @@ import { prisma } from "@/lib/db";
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Course } from "@/types/course"; // Import your custom type
+import { CheckCircle2, PlayCircle } from "lucide-react"; // Helpful icons
 
 type Params = { courseId: string };
 
@@ -14,19 +16,21 @@ export default async function CoursePage({
   const courseIdNum = Number(courseId);
   if (!Number.isInteger(courseIdNum)) return notFound();
 
-  const currentUserId = 1;
+  const currentUserId = 13;
 
-  const course = await prisma.course.findUnique({
+  const courseData = await prisma.course.findUnique({
     where: { id: courseIdNum },
     include: {
       sections: {
+        orderBy: { sectionOrder: "asc" },
         include: {
           lessons: {
             orderBy: { lessonOrder: "asc" },
-            include: { progress: { where: { userId: currentUserId } } },
+            include: {
+              progress: { where: { userId: currentUserId } },
+            },
           },
         },
-        orderBy: { sectionOrder: "asc" },
       },
       instructor: { select: { name: true } },
       courseProgress: {
@@ -36,99 +40,102 @@ export default async function CoursePage({
     },
   });
 
-  if (!course) return notFound();
+  if (!courseData) return notFound();
 
-  const totalLessons = course.sections.reduce(
-    (acc, s) => acc + s.lessons.length,
-    0,
-  );
+  // Cast the Prisma result to your custom Course type
+  const course = courseData as unknown as Course;
 
-  const progress = course.courseProgress[0]
-    ? Number(course.courseProgress[0].completionPercentage)
+  // Safely calculate progress percentage
+  const progress = course.courseProgress?.[0]
+    ? Math.round(Number(course.courseProgress[0].completionPercentage))
     : 0;
-
-  const flatLessons = course.sections.flatMap((s) => s.lessons);
-  const firstLesson = flatLessons[0];
 
   return (
     <div className="min-h-screen bg-[#f7f8fc]">
       <Navbar />
 
       <div className="max-w-6xl mx-auto px-4 py-10 space-y-10">
-        {/* Gradient Header */}
-        <div className="rounded-2xl p-8 bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-xl">
-          <div className="flex justify-between items-start">
+        {/* Course Hero Card */}
+        <div className="rounded-2xl p-8 bg-gradient-to-r from-purple-600 to-indigo-700 text-white shadow-xl">
+          <div className="flex justify-between items-start flex-wrap gap-4">
             <div>
               <h1 className="text-4xl font-extrabold">{course.title}</h1>
               <p className="text-white/80 mt-2 max-w-2xl">
                 {course.description}
               </p>
-
               <p className="mt-3 text-sm text-white/90">
                 Instructor:{" "}
                 <span className="font-semibold">{course.instructor?.name}</span>
               </p>
             </div>
 
-            {/* Progress */}
-            <div className="w-48">
-              <div className="text-sm font-semibold mb-1">
-                {progress}% Complete
+            {/* Progress Visualization */}
+            <div className="w-full sm:w-48 bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/20">
+              <div className="text-sm font-bold mb-1 flex justify-between">
+                <span>Progress</span>
+                <span>{progress}%</span>
               </div>
               <div className="h-2 w-full bg-white/30 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-white rounded-full"
+                  className="h-full bg-white transition-all duration-500"
                   style={{ width: `${progress}%` }}
                 />
               </div>
             </div>
           </div>
-
-          {/* Navigation buttons */}
-          <div className="mt-8 flex gap-3 flex-wrap">
-            <button className="px-4 py-2 rounded-full bg-white text-purple-700 font-semibold shadow">
-              Overview
-            </button>
-            <button className="px-4 py-2 rounded-full bg-white/20 hover:bg-white/25 text-white border border-white/30">
-              Assignments
-            </button>
-            <button className="px-4 py-2 rounded-full bg-white/20 hover:bg-white/25 text-white border border-white/30">
-              Quizzes
-            </button>
-            <button className="px-4 py-2 rounded-full bg-white/20 hover:bg-white/25 text-white border border-white/30">
-              Resources
-            </button>
-          </div>
         </div>
 
-        {/* Course Content – Curriculum */}
-        <div className="bg-white rounded-2xl p-6 shadow border border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+        {/* Curriculum Section */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">
             Course Curriculum
           </h2>
 
           {course.sections.map((section) => (
-            <div key={section.id} className="mb-6">
-              <h3 className="font-semibold text-lg text-purple-700 mb-2">
+            <div key={section.id} className="mb-8 last:mb-0">
+              <h3 className="font-bold text-lg text-purple-800 mb-3 flex items-center gap-2">
+                <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-sm">
+                  Section {section.sectionOrder}
+                </span>
                 {section.title}
               </h3>
-              <ul className="space-y-2">
-                {section.lessons.map((lesson) => (
-                  <li
-                    key={lesson.id}
-                    className="p-3 rounded-lg border bg-gray-50 hover:border-purple-300 flex justify-between items-center"
-                  >
-                    <span className="font-medium text-gray-800">
-                      {lesson.title}
-                    </span>
-                    <Link
-                      href={`/courses/${course.id}/lessons/${lesson.id}`}
-                      className="px-4 py-1.5 rounded-full bg-purple-600 text-white text-sm hover:bg-purple-700 transition"
+
+              <ul className="grid gap-3">
+                {section.lessons.map((lesson) => {
+                  // Check if this specific lesson is done
+                  const isDone = lesson.progress?.[0]?.status === "COMPLETED";
+
+                  return (
+                    <li
+                      key={lesson.id}
+                      className="group p-4 rounded-xl border bg-gray-50 hover:bg-white hover:border-purple-300 hover:shadow-md transition-all flex justify-between items-center"
                     >
-                      Start
-                    </Link>
-                  </li>
-                ))}
+                      <div className="flex items-center gap-3">
+                        {isDone ? (
+                          <CheckCircle2 className="text-green-500 w-5 h-5" />
+                        ) : (
+                          <PlayCircle className="text-gray-400 w-5 h-5 group-hover:text-purple-500" />
+                        )}
+                        <span
+                          className={`font-medium ${isDone ? "text-gray-500 line-through" : "text-gray-800"}`}
+                        >
+                          {lesson.title}
+                        </span>
+                      </div>
+
+                      <Link
+                        href={`/courses/${course.id}/lessons/${lesson.id}`}
+                        className={`px-5 py-2 rounded-full text-sm font-bold transition-colors ${
+                          isDone
+                            ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                            : "bg-purple-600 text-white hover:bg-purple-700"
+                        }`}
+                      >
+                        {isDone ? "Review" : "Start"}
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}
