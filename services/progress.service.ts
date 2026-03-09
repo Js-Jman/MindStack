@@ -1,4 +1,5 @@
 import * as enrollmentRepository from "@/repositories/enrollment.repository";
+import { prisma } from "@/lib/db";
 
 export async function updateLessonProgress(
   studentId: number,
@@ -27,9 +28,18 @@ export async function getProgress(studentId: number, courseId: number) {
     throw new Error("Enrollment not found");
   }
 
+  const progressRow = await prisma.courseProgress.findUnique({
+    where: {
+      courseId_userId: {
+        courseId,
+        userId: studentId,
+      },
+    },
+  });
+
   return {
-    progress: enrollment.progress,
-    status: enrollment.status,
+    progress: progressRow ? Number(progressRow.completionPercentage) : 0,
+    status: progressRow?.status ?? "NOT_STARTED",
     enrolledAt: enrollment.enrolledAt,
     completedAt: enrollment.completedAt,
   };
@@ -43,8 +53,10 @@ export async function getStudentProgress(studentId: number) {
   return enrollments.map((e) => ({
     courseId: e.courseId,
     courseTitle: e.course.title,
-    progress: e.progress,
-    status: e.status,
+    progress: e.course.courseProgress[0]
+      ? Number(e.course.courseProgress[0].completionPercentage)
+      : 0,
+    status: e.course.courseProgress[0]?.status ?? "NOT_STARTED",
     enrolledAt: e.enrolledAt,
     completedAt: e.completedAt,
   }));
