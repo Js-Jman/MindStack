@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutDashboard, Users, UserCheck, ShieldQuestion, ChevronLeft, ChevronRight } from "lucide-react";
+import { LayoutDashboard, Users, UserCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -14,7 +14,6 @@ const routes = [
   { label: "Overview", icon: LayoutDashboard, href: "/admin" },
   { label: "Users", icon: Users, href: "/admin/users" },
   { label: "Instructors", icon: UserCheck, href: "/admin/instructors" },
-  { label: "Support", icon: ShieldQuestion, href: "/admin/support" },
 ];
 
 export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
