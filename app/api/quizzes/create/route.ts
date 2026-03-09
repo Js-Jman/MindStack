@@ -69,7 +69,7 @@ export async function POST(request: Request) {
 
       targetLessonId = lesson.id;
     } else {
-      // Create a default lesson if none specified
+      // Get the first lesson of the course (don't create a new one)
       const course = await prisma.course.findFirst({
         where: {
           id: Number(courseId),
@@ -82,41 +82,22 @@ export async function POST(request: Request) {
             include: {
               lessons: {
                 where: { deletedAt: null },
+                orderBy: { lessonOrder: 'asc' },
+                take: 1,
               },
             },
           },
         },
       });
 
-      if (!course) {
-        return NextResponse.json({ error: "Course not found" }, { status: 404 });
+      if (!course || !course.sections.length || !course.sections[0].lessons.length) {
+        return NextResponse.json(
+          { error: "No lessons found. Please create at least one lesson before adding a quiz." },
+          { status: 400 }
+        );
       }
 
-      // Get or create a section
-      let sectionId: number;
-      if (course.sections.length > 0) {
-        sectionId = course.sections[0].id;
-      } else {
-        const section = await prisma.courseSection.create({
-          data: {
-            courseId: Number(courseId),
-            title: "Course Content",
-            sectionOrder: 1,
-          },
-        });
-        sectionId = section.id;
-      }
-
-      // Create a default lesson for the quiz
-      const lesson = await prisma.lesson.create({
-        data: {
-          sectionId,
-          title: `Quiz: ${title}`,
-          lessonOrder: order || 1,
-        },
-      });
-
-      targetLessonId = lesson.id;
+      targetLessonId = course.sections[0].lessons[0].id;
     }
 
     // Create the quiz

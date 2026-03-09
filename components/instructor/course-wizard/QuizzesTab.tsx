@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronLeft, Plus, Trash2, GripVertical, CheckCircle } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
@@ -19,7 +18,6 @@ interface LessonData {
 interface QuizData {
   id: string;
   title: string;
-  lessonId?: string;
   questions: QuestionData[];
   order: number;
 }
@@ -324,26 +322,6 @@ export function QuizzesTab({ quizzes, lessons, onChange, onBack }: QuizzesTabPro
                                 value={quiz.title}
                                 onChange={(e) => updateQuiz(quiz.id, { title: e.target.value })}
                               />
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor={`quiz-lesson-${quiz.id}`}>Associated Lesson (Optional)</Label>
-                              <Select
-                                value={quiz.lessonId || "none"}
-                                onValueChange={(value) => updateQuiz(quiz.id, { lessonId: value === "none" ? undefined : value })}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a lesson" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="none">No associated lesson</SelectItem>
-                                  {lessons.map((lesson) => (
-                                    <SelectItem key={lesson.id} value={lesson.id}>
-                                      Lesson {lesson.order}: {lesson.title}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
                             </div>
 
                             <div className="space-y-4">
