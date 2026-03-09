@@ -4,7 +4,7 @@ export const WelcomeBanner = () => {
       <h1 className="text-3xl font-bold tracking-tight"> 
         {/* Changed from text-5xl to text-3xl and font-extrabold to font-bold */}
         <span className="bg-gradient-to-r from-purple-700 via-purple-600 to-blue-500 bg-clip-text text-transparent">
-          Hello, Admin! 👋
+          Hello, Admin!
         </span>
       </h1>
       <p className="text-slate-500 mt-2 text-base font-medium max-w-xl leading-relaxed">

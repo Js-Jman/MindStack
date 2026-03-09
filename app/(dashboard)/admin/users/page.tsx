@@ -3,8 +3,9 @@ import { UsersTable } from "@/components/admin/UsersTable";
 import type { UserData } from "@/components/admin/UsersTable";
 
 export default async function UsersPage() {
-  // Fetch users with their enrollment count from Prisma
+  // Fetch students with enrollment count from Prisma
   const users = await prisma.user.findMany({
+    where: { role: "STUDENT" },
     orderBy: {
       createdAt: "desc",
     },
@@ -19,7 +20,8 @@ export default async function UsersPage() {
     id: user.id,
     name: user.name,
     email: user.email,
-    status: "ACTIVE",
+    status: user.isFlagged ? "SUSPENDED" : "ACTIVE",
+    isFlagged: user.isFlagged,
     courseCount: user._count?.enrollments || 0,
     createdAt: user.createdAt,
   }));

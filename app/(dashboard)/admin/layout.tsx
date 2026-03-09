@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Navbar from "@/components/admin/Navbar";
 import Sidebar from "@/components/admin/Sidebar";
 import { cn } from "@/lib/utils";
 
@@ -13,7 +12,7 @@ export default function AdminLayout({
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="flex h-screen w-full bg-[#f8faff] p-4 gap-4"> 
+    <div className="flex min-h-[calc(100vh-4rem)] w-full bg-[#f8faff] p-4 gap-4">
       {/* SIDEBAR BLOCK - Floating and Detached */}
       <aside 
         className={cn(
@@ -29,11 +28,8 @@ export default function AdminLayout({
 
       {/* MAIN AREA */}
       <div className="flex flex-col flex-1 gap-4 overflow-hidden">
-        {/* NAVBAR BLOCK - Floating and Detached */}
-        <Navbar />
-        
         {/* CONTENT BLOCK - Floating and Detached */}
-        <main className="flex-1 bg-white rounded-[2rem] border shadow-sm p-8 pt-6 overflow-y-auto"> 
+        <main className="flex-1 bg-white rounded-[2rem] border shadow-sm p-8 pt-6 overflow-y-auto">
           {children}
         </main>
       </div>
