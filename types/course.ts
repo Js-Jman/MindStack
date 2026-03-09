@@ -1,4 +1,5 @@
 import {
+  Prisma,
   User,
   CourseAssignment,
   CourseEnrollment,
@@ -12,7 +13,7 @@ export type Course = {
   title: string;
   description: string;
   thumbnailUrl?: string | null;
-  price?: number | null;
+  price?: number | Prisma.Decimal | null;
   introVideoUrl?: string | null;
   isPublished: boolean;
   createdAt: Date;
@@ -23,7 +24,7 @@ export type Course = {
   sections: (CourseSection & { lessons: { id: number; title: string }[] })[];
   assignments?: CourseAssignment[];
   enrollments?: (CourseEnrollment & {
-    user: Pick<User, "id" | "name" | "email">;
+    user?: Pick<User, "id" | "name" | "email">;
   })[];
   courseProgress?: CourseProgress[];
 

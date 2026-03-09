@@ -11,6 +11,12 @@ type CourseLikeWithSections = {
   sections?: Array<{ lessons?: Array<{ id: number; title: string }> }>;
 };
 
+type EnrollmentWithCourse = {
+  course: Course & {
+    courseProgress?: Course["courseProgress"];
+  };
+};
+
 function withLessonCount<T extends CourseLikeWithSections>(course: T) {
   const lessonCount = course.sections?.reduce(
     (sum, section) => sum + (section.lessons?.length || 0),
@@ -60,7 +66,7 @@ export async function findById(id: number): Promise<Course | null> {
 export async function findEnrolledCoursesByStudent(
   studentId: number,
 ): Promise<Course[]> {
-  const enrollments = await prisma.courseEnrollment.findMany({
+  const enrollments = (await prisma.courseEnrollment.findMany({
     where: { userId: studentId },
     include: {
       course: {
@@ -72,16 +78,23 @@ export async function findEnrolledCoursesByStudent(
           assignments: true,
           courseProgress: {
             where: { userId: studentId },
-            select: { completionPercentage: true, status: true },
+            select: {
+              id: true,
+              courseId: true,
+              userId: true,
+              status: true,
+              completionPercentage: true,
+              updatedAt: true,
+            },
           },
         },
       },
     },
     orderBy: { enrolledAt: "desc" },
-  });
+  })) as EnrollmentWithCourse[];
 
-  return enrollments.map((e) => {
-    const progress = e.course.courseProgress[0];
+  return enrollments.map((e: EnrollmentWithCourse) => {
+    const progress = e.course.courseProgress?.[0];
 
     return {
       ...withLessonCount(e.course),

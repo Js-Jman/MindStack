@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { Prisma } from "@prisma/client";
+import type { UserRole } from "@/types/admin";
+
+type UserPatchInput = {
+  name?: string;
+  email?: string;
+  password?: string;
+  isFlagged?: boolean;
+};
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) return error.message;
@@ -80,7 +87,7 @@ export async function PATCH(
     const body = await req.json();
     const { name, email, password, isFlagged } = body;
 
-    const data: Prisma.UserUpdateInput = {};
+    const data: UserPatchInput = {};
     if (typeof name === "string" && name.trim()) data.name = name.trim();
     if (typeof email === "string" && email.trim()) data.email = email.trim();
     if (typeof password === "string" && password.trim()) data.password = password;
@@ -126,7 +133,7 @@ export async function DELETE(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    if (existingUser.role === "ADMIN") {
+    if ((existingUser.role as UserRole) === "ADMIN") {
       return NextResponse.json(
         { error: "Admin accounts cannot be deleted" },
         { status: 400 }

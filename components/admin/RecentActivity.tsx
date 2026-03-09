@@ -1,15 +1,10 @@
 import { prisma } from "@/lib/db";
 import { UserPlus, BookOpen, CheckCircle } from "lucide-react";
+import type { ActivityItem, ActivityType } from "@/types/admin";
 
-type ActivityType = "user" | "course" | "enrollment";
-
-type ActivityItem = {
-  id: string;
-  type: ActivityType;
-  text: string;
-  time: string;
-  timestamp: Date;
-};
+type RecentUser = { id: number; name: string; role: "STUDENT" | "INSTRUCTOR" | "ADMIN"; createdAt: Date };
+type RecentCourse = { id: number; title: string; createdAt: Date };
+type RecentEnrollment = { id: number; enrolledAt: Date; user: { name: string }; course: { title: string } };
 
 function formatRelativeTime(date: Date): string {
   const diffMs = Date.now() - date.getTime();
@@ -37,7 +32,7 @@ function activityMeta(type: ActivityType) {
 }
 
 export async function RecentActivity() {
-  const [latestUsers, latestCourses, latestEnrollments] = await Promise.all([
+  const [latestUsers, latestCourses, latestEnrollments] = (await Promise.all([
     prisma.user.findMany({
       orderBy: { createdAt: "desc" },
       take: 5,
@@ -56,24 +51,24 @@ export async function RecentActivity() {
         course: { select: { title: true } },
       },
     }),
-  ]);
+  ])) as [RecentUser[], RecentCourse[], RecentEnrollment[]];
 
   const activities: ActivityItem[] = [
-    ...latestUsers.map((user) => ({
+    ...latestUsers.map((user: RecentUser) => ({
       id: `u-${user.id}`,
       type: "user" as const,
       text: `${user.role === "INSTRUCTOR" ? "Instructor" : "User"} joined: ${user.name}`,
       time: formatRelativeTime(user.createdAt),
       timestamp: user.createdAt,
     })),
-    ...latestCourses.map((course) => ({
+    ...latestCourses.map((course: RecentCourse) => ({
       id: `c-${course.id}`,
       type: "course" as const,
       text: `Course created: ${course.title}`,
       time: formatRelativeTime(course.createdAt),
       timestamp: course.createdAt,
     })),
-    ...latestEnrollments.map((enrollment) => ({
+    ...latestEnrollments.map((enrollment: RecentEnrollment) => ({
       id: `e-${enrollment.id}`,
       type: "enrollment" as const,
       text: `${enrollment.user.name} enrolled in ${enrollment.course.title}`,
