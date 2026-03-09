@@ -61,6 +61,15 @@ export default async function CoursePage({
       <Navbar />
 
       <div className="max-w-6xl mx-auto px-4 py-10 space-y-10">
+        <div>
+          <Link
+            href="/student"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-purple-200 text-purple-700 font-semibold hover:bg-purple-50 transition-colors"
+          >
+            Back to Dashboard
+          </Link>
+        </div>
+
         {/* Course Hero Card */}
         <div className="rounded-2xl p-8 bg-gradient-to-r from-purple-600 to-indigo-700 text-white shadow-xl">
           <div className="flex justify-between items-start flex-wrap gap-4">

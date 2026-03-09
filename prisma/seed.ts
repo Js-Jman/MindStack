@@ -418,6 +418,92 @@ async function main() {
     await createCourseWithContent(instructor3.id, coursesData[3]),
   );
 
+  // Create assignments for courses
+  console.log("Creating assignments...");
+  
+  // Web Development Fundamentals - 2 assignments
+  const assignment1 = await prisma.courseAssignment.create({
+    data: {
+      courseId: createdCourses[0].id,
+      title: "Build a Personal Portfolio Website",
+      description: "Create a responsive portfolio website using HTML, CSS, and JavaScript. Include sections for About, Projects, and Contact.",
+      dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 days from now
+    },
+  });
+
+  await prisma.courseAssignment.create({
+    data: {
+      courseId: createdCourses[0].id,
+      title: "CSS Flexbox Layout Challenge",
+      description: "Build a complex layout using only Flexbox. Submit your HTML and CSS files.",
+      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+    },
+  });
+
+  // Advanced React Patterns - 2 assignments
+  const assignment3 = await prisma.courseAssignment.create({
+    data: {
+      courseId: createdCourses[1].id,
+      title: "Custom Hooks Implementation",
+      description: "Create 3 custom hooks for common use cases: useFetch, useLocalStorage, and useDebounce. Include tests and documentation.",
+      dueDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000), // 10 days from now
+    },
+  });
+
+  await prisma.courseAssignment.create({
+    data: {
+      courseId: createdCourses[1].id,
+      title: "Performance Optimization Project",
+      description: "Take a slow React app and optimize it using memoization techniques. Document your improvements with before/after metrics.",
+      dueDate: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000), // 21 days from now
+    },
+  });
+
+  // Node.js & Backend Mastery - 1 assignment
+  await prisma.courseAssignment.create({
+    data: {
+      courseId: createdCourses[2].id,
+      title: "RESTful API with Authentication",
+      description: "Build a complete RESTful API with JWT authentication, CRUD operations, and proper error handling.",
+      dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 days from now
+    },
+  });
+
+  // Database Design Pro - 1 assignment
+  await prisma.courseAssignment.create({
+    data: {
+      courseId: createdCourses[3].id,
+      title: "E-commerce Database Schema Design",
+      description: "Design a normalized database schema for an e-commerce platform. Include ER diagram and sample queries.",
+      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+    },
+  });
+
+  // Create sample submission for student 1 on assignment 1
+  await prisma.assignmentSubmission.create({
+    data: {
+      assignmentId: assignment1.id,
+      userId: student.id,
+      submissionText: "I've completed my portfolio website with all the required sections. The site is fully responsive and includes interactive elements.",
+      fileUrl: "https://github.com/sample-user/portfolio",
+      submittedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+      grade: 92.5,
+      feedback: "Great work! Your portfolio is well-structured and responsive. Consider adding more animations for better UX.",
+      gradedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
+    },
+  });
+
+  // Create submission for student 1 on assignment 3 (not yet graded)
+  await prisma.assignmentSubmission.create({
+    data: {
+      assignmentId: assignment3.id,
+      userId: student.id,
+      submissionText: "Here are my three custom hooks with full test coverage and documentation. The useFetch hook includes caching, useLocalStorage has serialization support, and useDebounce prevents excessive API calls.",
+      fileUrl: "https://github.com/sample-user/react-custom-hooks",
+      submittedAt: new Date(),
+    },
+  });
+
   // Enrollments for the student
 
   await prisma.courseEnrollment.createMany({
