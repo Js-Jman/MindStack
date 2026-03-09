@@ -1,7 +1,6 @@
 "use client";
 
 import Navbar from "@/components/Navbar";
-import Sidebar from "@/components/Sidebar";
 import { SearchBar } from "@/components/dashboard/SearchBar";
 import React, { useState, useEffect } from "react";
 
@@ -101,10 +100,7 @@ export default function Page() {
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-white">
       <Navbar />
       <div className="flex w-full max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-10 gap-10">
-        {/* Sidebar */}
-        <aside className="w-64 shrink-0 hidden md:block sticky top-8 h-[calc(100vh-4rem)]">
-          <Sidebar />
-        </aside>
+
         {/* Main Content */}
         <main className="flex-1 min-w-0 flex flex-col gap-10">
           {/* Search Bar */}
