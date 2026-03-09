@@ -51,6 +51,7 @@ model Course {
   description String   @db.Text
   thumbnailUrl String? @map("thumbnail_url") @db.VarChar(500)
   price       Decimal? @db.Decimal(10, 2)
+  introVideoUrl String?
   isPublished Boolean  @default(false) @map("is_published")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
@@ -225,6 +226,7 @@ model LessonProgress {
   status        ProgressStatus
   lastAccessedAt DateTime?     @map("last_accessed_at")
   updatedAt     DateTime       @updatedAt @map("updated_at")
+  completedAt DateTime?
 
   lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)

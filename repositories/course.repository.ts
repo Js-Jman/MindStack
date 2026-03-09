@@ -10,7 +10,7 @@ const instructorSelect = {
 function withLessonCount(course: any) {
   const lessonCount = course.sections?.reduce(
     (sum: number, section: any) => sum + (section.lessons?.length || 0),
-    0
+    0,
   );
 
   return {
@@ -24,7 +24,10 @@ export async function findAll(): Promise<Course[]> {
     where: { isPublished: true },
     include: {
       instructor: { select: instructorSelect },
-      sections: { include: { lessons: { select: { id: true } } } },
+      sections: { include: { lessons: { select: { id: true, title: true } } } },
+      assignments: true,
+      enrollments: true,
+      courseProgress: true,
     },
   });
 
@@ -36,7 +39,14 @@ export async function findById(id: number): Promise<Course | null> {
     where: { id },
     include: {
       instructor: { select: instructorSelect },
-      sections: { include: { lessons: { select: { id: true } } } },
+      sections: { include: { lessons: { select: { id: true, title: true } } } },
+      assignments: true,
+      enrollments: {
+        include: {
+          user: { select: { id: true, name: true, email: true } },
+        },
+      },
+      courseProgress: true,
     },
   });
 
@@ -44,7 +54,7 @@ export async function findById(id: number): Promise<Course | null> {
 }
 
 export async function findEnrolledCoursesByStudent(
-  studentId: number
+  studentId: number,
 ): Promise<Course[]> {
   const enrollments = await prisma.courseEnrollment.findMany({
     where: { userId: studentId },
@@ -52,7 +62,10 @@ export async function findEnrolledCoursesByStudent(
       course: {
         include: {
           instructor: { select: instructorSelect },
-          sections: { include: { lessons: { select: { id: true } } } },
+          sections: {
+            include: { lessons: { select: { id: true, title: true } } },
+          },
+          assignments: true,
           courseProgress: {
             where: { userId: studentId },
             select: { completionPercentage: true, status: true },
@@ -82,7 +95,10 @@ export async function create(data: CreateCourseInput): Promise<Course> {
     },
     include: {
       instructor: { select: instructorSelect },
-      sections: { include: { lessons: { select: { id: true } } } },
+      sections: { include: { lessons: { select: { id: true, title: true } } } },
+      assignments: true,
+      enrollments: true,
+      courseProgress: true,
     },
   });
 
@@ -91,14 +107,17 @@ export async function create(data: CreateCourseInput): Promise<Course> {
 
 export async function update(
   id: number,
-  data: UpdateCourseInput
+  data: UpdateCourseInput,
 ): Promise<Course | null> {
   const course = await prisma.course.update({
     where: { id },
     data,
     include: {
       instructor: { select: instructorSelect },
-      sections: { include: { lessons: { select: { id: true } } } },
+      sections: { include: { lessons: { select: { id: true, title: true } } } },
+      assignments: true,
+      enrollments: true,
+      courseProgress: true,
     },
   });
 
@@ -121,13 +140,16 @@ export async function searchCourses(query: string): Promise<Course[]> {
     where: {
       isPublished: true,
       OR: [
-        { title: { contains: query, mode: "insensitive" } },
-        { description: { contains: query, mode: "insensitive" } },
+        { title: { contains: query } },
+        { description: { contains: query } },
       ],
     },
     include: {
       instructor: { select: instructorSelect },
-      sections: { include: { lessons: { select: { id: true } } } },
+      sections: { include: { lessons: { select: { id: true, title: true } } } },
+      assignments: true,
+      enrollments: true,
+      courseProgress: true,
     },
   });
 
