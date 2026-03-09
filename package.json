@@ -22,7 +22,7 @@
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.574.0",
     "next": "16.1.6",
-    "nodemailer": "^8.0.1",
+    "next-auth": "^5.0.0-beta.30",
     "pg": "^8.18.0",
     "prisma": "^6.19.2",
     "radix-ui": "^1.4.3",
