@@ -51,15 +51,17 @@ export function useAuth() {
     const data = await res.json();
     setUser(data.user);
 
-    // Redirect based on role
-    if (data.user.role === "INSTRUCTOR") {
-      router.push("/instructor");
+    // Use full-page navigation to avoid race conditions with HttpOnly cookie.
+    if (data.user.role === "ADMIN") {
+      window.location.href = "/admin";
+    } else if (data.user.role === "INSTRUCTOR") {
+      window.location.href = "/instructor";
     } else {
-      router.push("/student");
+      window.location.href = "/student";
     }
 
     return data.user as AuthUser;
-  }, [router]);
+  }, []);
 
   const signout = useCallback(async () => {
     await fetch("/api/auth/signout", {

@@ -4,7 +4,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import MarkDoneButton from "@/components/markAsDone";
 import { getLessonById } from "@/services/lesson.service";
-import { auth } from "@/auth";
+import { getSession } from "@/lib/auth";
 import {
   BookOpen,
   ChevronLeft,
@@ -29,12 +29,12 @@ export default async function LessonPage({ params }: Props) {
     return notFound();
   }
 
-  const session = await auth();
-  if (!session?.user?.id) {
-    redirect("/auth/signin");
+  const session = await getSession();
+  if (!session?.userId) {
+    redirect("/signin");
   }
 
-  const currentUserId = Number(session.user.id);
+  const currentUserId = Number(session.userId);
 
   const lessonRecord = await getLessonById(
     lessonIdNum,
@@ -128,12 +128,18 @@ export default async function LessonPage({ params }: Props) {
           <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-gray-500 hover:bg-white/50 hover:text-purple-600 transition-all whitespace-nowrap">
             <Layout size={18} /> Overview
           </button>
-          <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-gray-500 hover:bg-white/50 hover:text-purple-600 transition-all whitespace-nowrap">
+          <Link
+            href={`/courses/${course.id}/quizzes?lessonId=${lessonRecord.id}`}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-gray-500 hover:bg-white/50 hover:text-purple-600 transition-all whitespace-nowrap"
+          >
             <HelpCircle size={18} /> Quiz
-          </button>
-          <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-gray-500 hover:bg-white/50 hover:text-purple-600 transition-all whitespace-nowrap">
+          </Link>
+          <Link
+            href={`/courses/${course.id}/assignments?lessonId=${lessonRecord.id}`}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-gray-500 hover:bg-white/50 hover:text-purple-600 transition-all whitespace-nowrap"
+          >
             <FileText size={18} /> Assignments
-          </button>
+          </Link>
         </div>
 
         <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-6 md:p-10 border border-white/40 shadow-xl space-y-10">

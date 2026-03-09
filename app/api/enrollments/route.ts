@@ -1,14 +1,31 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { enrollStudentInCourse } from "@/services/enrollment.service";
+import { getSession } from "@/lib/auth";
+
+async function resolveStudentIdFromSession() {
+  const session = await getSession();
+  if (!session?.userId) return null;
+
+  const byId = await prisma.user.findUnique({
+    where: { id: Number(session.userId) },
+    select: { id: true, deletedAt: true },
+  });
+  if (byId && !byId.deletedAt) return byId.id;
+
+  const byEmail = await prisma.user.findUnique({
+    where: { email: session.email },
+    select: { id: true, deletedAt: true },
+  });
+  if (byEmail && !byEmail.deletedAt) return byEmail.id;
+
+  return null;
+}
 
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const studentIdParam = searchParams.get("studentId");
-  const studentId = Number(studentIdParam);
-
-  if (!Number.isInteger(studentId)) {
-    return NextResponse.json({ error: "Invalid studentId" }, { status: 400 });
+  const studentId = await resolveStudentIdFromSession();
+  if (!studentId) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
   const enrollments = await prisma.courseEnrollment.findMany({
@@ -60,22 +77,26 @@ export async function GET(req: Request) {
 
 export async function POST(request: Request) {
   try {
+    const studentId = await resolveStudentIdFromSession();
+    if (!studentId) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
     const body = await request.json();
-    const { studentId: studentIdRaw, courseId: courseIdRaw } = body;
-    const studentId = Number(studentIdRaw);
+    const { courseId: courseIdRaw } = body;
     const courseId = Number(courseIdRaw);
 
-    if (!studentIdRaw || !courseIdRaw || Number.isNaN(studentId) || Number.isNaN(courseId)) {
+    if (!courseIdRaw || Number.isNaN(courseId)) {
       return NextResponse.json(
-        { error: "studentId and courseId are required" },
+        { error: "courseId is required" },
         { status: 400 }
       );
     }
-    const enrollment = await enrollStudentInCourse(studentId, courseId);
+    await enrollStudentInCourse(studentId, courseId);
     return NextResponse.json({
       status: 201,
       message: "User enrolled",
-      data: body,
+      data: { studentId, courseId },
     });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {

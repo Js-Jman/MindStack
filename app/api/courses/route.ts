@@ -5,6 +5,7 @@ import {
   searchCourses,
 } from "@/services/course.service";
 import { prisma } from "@/lib/db";
+import { getSession } from "@/lib/auth";
 
 type RawCourse = {
   id: number;
@@ -24,9 +25,8 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get("q");
-
-    // mock user
-    const currentUserId = 1;
+    const session = await getSession();
+    const currentUserId = session?.userId;
 
     const rawCourses = query
       ? await searchCourses(query)
@@ -46,17 +46,21 @@ export async function GET(request: Request) {
           select: { name: true },
         });
 
-        const enrollment = await prisma.courseEnrollment.findUnique({
-          where: {
-            courseId_userId: { courseId: course.id, userId: currentUserId },
-          },
-        });
+        const enrollment = currentUserId
+          ? await prisma.courseEnrollment.findUnique({
+              where: {
+                courseId_userId: { courseId: course.id, userId: currentUserId },
+              },
+            })
+          : null;
 
-        const cp = await prisma.courseProgress.findUnique({
-          where: {
-            courseId_userId: { courseId: course.id, userId: currentUserId },
-          },
-        });
+        const cp = currentUserId
+          ? await prisma.courseProgress.findUnique({
+              where: {
+                courseId_userId: { courseId: course.id, userId: currentUserId },
+              },
+            })
+          : null;
 
         const lessonsCount = sections.reduce(
           (acc, s) => acc + s.lessons.length,
