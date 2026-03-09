@@ -1,22 +1,31 @@
 import { prisma } from "@/lib/db";
 import { UsersTable } from "@/components/admin/UsersTable";
-import type { UserData } from "@/components/admin/UsersTable";
+import type { UserTableRow } from "@/types/admin";
+
+type StudentUser = {
+  id: number;
+  name: string;
+  email: string;
+  isFlagged: boolean;
+  createdAt: Date;
+  _count: { enrollments: number };
+};
 
 export default async function UsersPage() {
   // Fetch students with enrollment count from Prisma
-  const users = await prisma.user.findMany({
+  const users = (await prisma.user.findMany({
     where: { role: "STUDENT" },
     orderBy: {
       createdAt: "desc",
     },
     include: {
       _count: {
-        select: { enrollments: true }, // Replace 'enrollments' with your actual relation name
+        select: { enrollments: true },
       },
     },
-  });
+  })) as StudentUser[];
 
-  const formattedUsers: UserData[] = users.map((user) => ({
+  const formattedUsers: UserTableRow[] = users.map((user: StudentUser) => ({
     id: user.id,
     name: user.name,
     email: user.email,

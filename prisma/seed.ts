@@ -1,5 +1,6 @@
 import "dotenv/config";
-import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+import type { SeedCourseSpec } from "../types/seed";
 
 const prisma = new PrismaClient();
 
@@ -23,32 +24,7 @@ async function resetDatabase() {
   await prisma.user.deleteMany();
 }
 
-function d(n: number): Prisma.Decimal {
-  // Convenience helper for MySQL Decimal
-  return new Prisma.Decimal(n);
-}
-
-type SeedLessonSpec = {
-  title: string;
-  textHtml: string;
-  imageUrl: string;
-  videoUrl: string;
-};
-
-type SeedSectionSpec = {
-  title: string;
-  lessons: SeedLessonSpec[];
-};
-
-type SeedCourseSpec = {
-  title: string;
-  description: string;
-  thumbnailUrl: string | null;
-  introVideoUrl?: string | null;
-  price?: number | null;
-  isPublished?: boolean;
-  sections: SeedSectionSpec[];
-};
+const d = (n: number): number => n;
 
 async function createCourseWithContent(
   instructorId: number,
