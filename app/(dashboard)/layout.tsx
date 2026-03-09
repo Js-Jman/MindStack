@@ -1,12 +1,32 @@
+// // app/(dashboard)/layout.tsx
+// import Navbar from "@/components/Navbar";
+
+// export default function DashboardLayout({
+//   children,
+// }: {
+//   children: React.ReactNode;
+// }) {
+//   return (
+//     <div className="min-h-screen bg-background">
+//       <Navbar />
+//       <main>{children}</main>
+//     </div>
+//   );
+// }
+
+"use client";
+// app/(dashboard)/layout.tsx
 import Navbar from "@/components/Navbar";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <div className="min-h-screen bg-background">
-      <Navbar userId={1} />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        {children}
-      </main>
+      <Navbar />
+      <main>{children}</main>
     </div>
   );
 }
