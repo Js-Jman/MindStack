@@ -2,16 +2,12 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Navbar from "@/components/Navbar";
-import Sidebar from "@/components/Sidebar";
 import { SearchBar } from "@/components/dashboard/SearchBar";
 import Link from "next/link";
 import Image from "next/image";
+import { Course } from "@/types/course";
 
-type CourseVM = {
-  id: number;
-  title: string;
-  description: string;
-  image: string | null;
+type CourseVM = Course & {
   instructorName: string;
   lessonsCount: number;
   isEnrolled: boolean;
@@ -19,6 +15,7 @@ type CourseVM = {
   progressStatus: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
   price: number;
   isFree: boolean;
+  image?: string | null;
 };
 
 type FilterKey =
@@ -59,7 +56,7 @@ export default function CoursesPage() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
 
-    const next = courses.filter((c) => {
+    return courses.filter((c) => {
       const pass =
         activeFilter === "ALL" ||
         (activeFilter === "ENROLLED" && c.isEnrolled) ||
@@ -88,7 +85,7 @@ export default function CoursesPage() {
 
       <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6 flex gap-6">
         <div className="hidden md:block w-64 shrink-0">
-          <Sidebar />
+          {/* <Sidebar /> */}
         </div>
 
         <div className="flex-1 space-y-10">

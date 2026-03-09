@@ -44,6 +44,7 @@ export default function SignupPage() {
       } else {
         router.push("/student");
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       setError(e.message);
     } finally {

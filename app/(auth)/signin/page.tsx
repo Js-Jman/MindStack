@@ -23,6 +23,7 @@ export default function SigninPage() {
     try {
       await signin(form.email, form.password);
       // signin() handles redirect based on role
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       setError(e.message);
     } finally {

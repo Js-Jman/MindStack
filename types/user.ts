@@ -27,6 +27,7 @@ export type User = {
   profile?: UserProfile | null;
   phoneNumber?: string | null;
   avatarUrl?: string | null;
+  isFlagged?: boolean;
   emailVerifiedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
@@ -60,6 +61,7 @@ export type UpdateUserInput = {
   name?: string;
   phoneNumber?: string;
   avatarUrl?: string;
+  emailVerifiedAt?: Date | null;
 };
 
 export type UpdateProfileInput = {

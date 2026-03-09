@@ -47,6 +47,7 @@ export default function ResetPasswordPage() {
 
       sessionStorage.removeItem("pwr_reset");
       setSuccess(true);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       setError(e.message);
     } finally {

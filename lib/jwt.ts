@@ -1,4 +1,5 @@
 import { SignJWT, jwtVerify, type JWTPayload } from "jose";
+import { Roles } from "@/types/user";
 
 const SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET ?? "change_this_secret_min_32_chars!!"
@@ -6,7 +7,7 @@ const SECRET = new TextEncoder().encode(
 
 export interface TokenPayload extends JWTPayload {
   userId: number;
-  role: "STUDENT" | "INSTRUCTOR" | "ADMIN";
+  role: Roles;
   email: string;
   name: string;
 }

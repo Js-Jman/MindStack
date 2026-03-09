@@ -10,7 +10,7 @@ interface NavbarProps {
 }
 import { useAuth } from "@/hooks/useAuth";
 
-export default function Navbar() {
+export default function Navbar({ userId }: NavbarProps) {
   const { user, loading, signout } = useAuth();
   const [profileOpen, setProfileOpen] = useState(false);
 

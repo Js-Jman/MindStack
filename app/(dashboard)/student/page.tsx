@@ -7,34 +7,22 @@ import { SearchBar } from "@/components/dashboard/SearchBar";
 import { EnrolledCourseCard } from "@/components/dashboard/EnrolledCourseCard";
 import { EnrollCoursesDialog } from "@/components/dashboard/EnrollCoursesDialog";
 import { useAuth } from "@/hooks/useAuth";
+import { Course } from "@/types/course";
+import { StudentStats } from "@/types/progress";
 
-interface Course {
-  id: number;
-  title: string;
-  description: string;
-  image?: string;
-  instructor?: { name?: string; email: string };
-  level?: string;
-  duration?: number;
-  lessonCount?: number;
-  rating?: number;
+type EnrolledCourse = Course & {
   progress?: number;
   status?: string;
-}
-
-interface Stats {
-  totalEnrollments: number;
-  completedCourses: number;
-  inProgressCourses: number;
-  averageProgress: number;
-}
+  instructor?: { name?: string; email: string };
+  image?: string | null;
+};
 
 export default function StudentDashboard() {
   const { user, loading: authLoading } = useAuth();
 
-  const [enrolledCourses, setEnrolledCourses] = useState<Course[]>([]);
-  const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
-  const [stats, setStats] = useState<Stats>({
+  const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
+  const [filteredCourses, setFilteredCourses] = useState<EnrolledCourse[]>([]);
+  const [stats, setStats] = useState<StudentStats>({
     totalEnrollments: 0,
     completedCourses: 0,
     inProgressCourses: 0,
@@ -222,7 +210,7 @@ export default function StudentDashboard() {
                   key={course.id}
                   id={course.id}
                   title={course.title}
-                  image={course.image}
+                  image={course.image || undefined}
                   instructorName={course.instructor?.name || "Unknown Instructor"}
                   progress={course.progress || 0}
                   lessonCount={course.lessonCount}

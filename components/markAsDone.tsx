@@ -68,6 +68,7 @@ export default function MarkDoneButton({
       setDone(data.done);
       setCompleted(data.completedCount);
       setPercentage(data.completionPercentage);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       
       setDone(prev.done);
