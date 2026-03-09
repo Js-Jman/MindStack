@@ -533,11 +533,9 @@ async function main() {
           lessonId: lessons[i].id,
           userId: student.id,
           status: "COMPLETED",
-          completedAt: new Date(),
         },
         update: {
           status: "COMPLETED",
-          completedAt: new Date(),
         },
       });
     }
