@@ -5,7 +5,18 @@ import {
   CourseEnrollment,
   CourseSection,
   CourseProgress,
+  Lesson,
+  LessonProgress,
 } from "@prisma/client";
+
+export type LessonWithProgress = Lesson & {
+  progress: LessonProgress[];
+};
+
+
+export type SectionWithLessons = CourseSection & {
+  lessons: LessonWithProgress[];
+};
 
 export type Course = {
   id: number;
@@ -20,13 +31,13 @@ export type Course = {
   updatedAt: Date;
   deletedAt?: Date | null;
 
-  instructor?: Pick<User, "id" | "name" | "email">;
-  sections: (CourseSection & { lessons: { id: number; title: string }[] })[];
+  instructor?: Pick<User, "name">;
+  sections: SectionWithLessons[]; 
+  courseProgress: CourseProgress[];
   assignments?: CourseAssignment[];
   enrollments?: (CourseEnrollment & {
     user?: Pick<User, "id" | "name" | "email">;
   })[];
-  courseProgress?: CourseProgress[];
 
 
   lessonCount?: number;
