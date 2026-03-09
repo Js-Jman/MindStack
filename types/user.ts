@@ -1,3 +1,5 @@
+import { Role } from "@prisma/client";
+
 export type User = {
   id: number;
   name: string;
@@ -13,5 +15,5 @@ export type CreateUserInput = {
   name: string;
   email: string;
   password: string;
-  role?: "STUDENT" | "INSTRUCTOR" | "ADMIN";
+  role: Role;
 };

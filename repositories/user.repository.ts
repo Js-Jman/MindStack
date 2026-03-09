@@ -1,4 +1,5 @@
-import { prisma } from "@/lib/db";
+import { prisma} from "@/lib/db";
+import {Role} from "@prisma/client";
 import { CreateUserInput } from "@/types/user";
 
 export async function findById(id: number) {
@@ -33,9 +34,11 @@ export async function findByEmail(email: string) {
   });
 }
 
-export async function findAll(role?: string) {
+export async function findAll(role?: Role) {
   return await prisma.user.findMany({
-    where: role ? { role } : undefined,
+    where: role
+      ? { role }
+      : { role: { in: [Role.STUDENT, Role.INSTRUCTOR] } },
     select: {
       id: true,
       email: true,
