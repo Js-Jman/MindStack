@@ -134,7 +134,6 @@ export async function findByEmail(email: string) {
   });
 }
 
-/** Only used internally for auth — exposes password hash */
 export async function findByEmailWithPassword(email: string) {
   return prisma.user.findUnique({
     where: { email },

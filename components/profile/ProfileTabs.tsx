@@ -1,4 +1,3 @@
-// components/profile/ProfileTabs.tsx
 "use client";
 
 import { useState } from "react";
@@ -20,7 +19,6 @@ export function ProfileTabs({ tabs, children }: ProfileTabsProps) {
 
   return (
     <div className="flex flex-col md:flex-row gap-6 min-h-[500px]">
-      {/* Vertical tab list */}
       <div className="flex md:flex-col gap-1 md:w-52 shrink-0">
         {tabs.map((tab) => (
           <button
@@ -39,7 +37,6 @@ export function ProfileTabs({ tabs, children }: ProfileTabsProps) {
         ))}
       </div>
 
-      {/* Active panel */}
       <div className="flex-1 bg-card border rounded-2xl shadow-sm p-6 min-h-[400px]">
         {children[activeIndex] ?? null}
       </div>

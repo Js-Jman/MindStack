@@ -1,5 +1,3 @@
-// lib/jwt.ts
-// npm install jose  (already lighter than jsonwebtoken, works in Edge runtime)
 import { SignJWT, jwtVerify, type JWTPayload } from "jose";
 
 const SECRET = new TextEncoder().encode(
@@ -13,7 +11,6 @@ export interface TokenPayload extends JWTPayload {
   name: string;
 }
 
-/** Create a signed JWT valid for 7 days */
 export async function signToken(payload: Omit<TokenPayload, keyof JWTPayload>) {
   return new SignJWT({ ...payload })
     .setProtectedHeader({ alg: "HS256" })
@@ -22,7 +19,6 @@ export async function signToken(payload: Omit<TokenPayload, keyof JWTPayload>) {
     .sign(SECRET);
 }
 
-/** Verify and decode a JWT.  Returns null if invalid / expired. */
 export async function verifyToken(token: string): Promise<TokenPayload | null> {
   try {
     const { payload } = await jwtVerify(token, SECRET);
