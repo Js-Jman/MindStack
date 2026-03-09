@@ -1,10 +1,8 @@
 import * as courseRepository from "@/repositories/course.repository";
-import {
-  CreateCourseInput,
-  UpdateCourseInput,
-} from "@/types/course";
+import { CreateCourseInput, UpdateCourseInput } from "@/types/course";
 
 export async function getAllCourses() {
+  // Fetch all published courses with instructor, sections, lessons, etc.
   return await courseRepository.findAll();
 }
 
@@ -19,6 +17,7 @@ export async function getCourseById(id: number) {
 }
 
 export async function getEnrolledCourses(studentId: number) {
+  // Fetch courses a student is enrolled in, including progress
   return await courseRepository.findEnrolledCoursesByStudent(studentId);
 }
 
