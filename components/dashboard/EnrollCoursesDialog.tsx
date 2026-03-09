@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { X, AlertCircle } from "lucide-react";
 import { AvailableCourseCard } from "./AvailableCourseCard";
-import { useToast } from "@/components/ui/toast";
 
 interface Course {
   id: number;
@@ -32,7 +31,6 @@ export function EnrollCoursesDialog({
   const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { toast } = useToast();
   const [enrollingCourseId, setEnrollingCourseId] = useState<number | null>(
     null
   );
@@ -100,7 +98,6 @@ export function EnrollCoursesDialog({
           setLocallyEnrolledIds((prev) =>
             prev.includes(courseId) ? prev : [...prev, courseId]
           );
-          toast("Already enrolled", "success");
           if (onEnrollSuccess) {
             onEnrollSuccess();
           }
@@ -114,14 +111,12 @@ export function EnrollCoursesDialog({
         prev.includes(courseId) ? prev : [...prev, courseId]
       );
 
-      toast("Successfully enrolled", "success");
       if (onEnrollSuccess) {
         onEnrollSuccess();
       }
     } catch (err) {
       const msg = (err as Error).message || "Failed to enroll in course";
       setError(msg);
-      toast(msg, "error");
       console.error(err);
     } finally {
       setEnrollingCourseId(null);

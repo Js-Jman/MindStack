@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import { X, User, Mail, Shield, Save, KeyRound, Eye, EyeOff } from "lucide-react";
-import { useToast } from "@/components/ui/toast";
 
 interface UserProfile {
   id: number;
@@ -25,7 +24,6 @@ export default function ProfileSheet({ isOpen, onClose, userId }: ProfileSheetPr
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({ name: "", email: "" });
   const [passwordForm, setPasswordForm] = useState({ newPassword: "", confirmPassword: "" });
-  const { toast } = useToast();
   const sheetRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -36,7 +34,6 @@ export default function ProfileSheet({ isOpen, onClose, userId }: ProfileSheetPr
         setUser(data);
         setForm({ name: data.name, email: data.email });
       })
-      .catch(() => toast("Failed to load profile", "error"));
   }, [isOpen, userId]);
 
   // Close on outside click
@@ -62,21 +59,16 @@ export default function ProfileSheet({ isOpen, onClose, userId }: ProfileSheetPr
       const updated = await res.json();
       setUser(updated);
       setIsEditing(false);
-      toast("Profile updated successfully", "success");
-    } catch {
-      toast("Failed to update profile", "error");
-    } finally {
+    }finally {
       setIsSaving(false);
     }
   };
 
   const handlePasswordReset = async () => {
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      toast("Passwords do not match", "error");
       return;
     }
     if (passwordForm.newPassword.length < 6) {
-      toast("Password must be at least 6 characters", "error");
       return;
     }
     setIsSaving(true);
@@ -89,9 +81,7 @@ export default function ProfileSheet({ isOpen, onClose, userId }: ProfileSheetPr
       if (!res.ok) throw new Error("Failed to update password");
       setPasswordForm({ newPassword: "", confirmPassword: "" });
       setShowPasswordSection(false);
-      toast("Password updated successfully", "success");
     } catch {
-      toast("Failed to update password", "error");
     } finally {
       setIsSaving(false);
     }

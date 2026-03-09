@@ -4,11 +4,9 @@ import { useState } from "react";
 import { Brain, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/components/ui/toast";
 
 export default function SigninPage() {
   const { signin } = useAuth();
-  const { toast } = useToast();
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -20,19 +18,16 @@ export default function SigninPage() {
     if (!form.email || !form.password) {
       const msg = "Email and password are required.";
       setError(msg);
-      toast(msg, "error");
       return;
     }
     setLoading(true);
     try {
       await signin(form.email, form.password);
-      toast("Signed in successfully", "success");
       // signin() handles redirect based on role
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       const msg = e.message || "Sign in failed";
       setError(msg);
-      toast(msg, "error");
     } finally {
       setLoading(false);
     }

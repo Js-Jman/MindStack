@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { User } from "@/types/user";
-import { useToast } from "@/components/ui/toast";
 
 export type AuthUser = Pick<User, 'id' | 'name' | 'email' | 'role'>;
 
@@ -11,7 +10,6 @@ export function useAuth() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const { toast } = useToast();
 
   const fetchMe = useCallback(async () => {
     try {
@@ -68,9 +66,8 @@ export function useAuth() {
     });
     
     setUser(null);
-    toast("Signed out successfully", "success");
     router.push("/signin");
-  }, [router, toast]);
+  }, [router]);
 
   return { user, loading, signin, signout, refetch: fetchMe };
 }
