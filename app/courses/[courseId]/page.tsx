@@ -84,7 +84,7 @@ export default async function CoursePage({
             </div>
           </div>
 
-          {/* Navigation buttons (like SkillSync tabs) */}
+          {/* Navigation buttons */}
           <div className="mt-8 flex gap-3 flex-wrap">
             <button className="px-4 py-2 rounded-full bg-white text-purple-700 font-semibold shadow">
               Overview
