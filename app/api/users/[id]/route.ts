@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { hash, compare } from "bcryptjs";
-import { Prisma } from "@prisma/client";
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) return error.message;

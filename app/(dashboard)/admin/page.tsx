@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { WelcomeBanner } from "@/components/admin/WelcomeBanner";
 import { StatsCard } from "@/components/admin/StatsCard";
-import { RecentActivity } from "@/components/admin/RecentActivity";
+import { RecentActivity } from "../../../components/admin/RecentActivity";
 import { SummaryChart } from "@/components/admin/SummaryChart";
 import { Users, GraduationCap, BookOpen, UserPlus } from "lucide-react";
 

@@ -105,7 +105,7 @@
 // repositories/user.repository.ts
 import { prisma} from "@/lib/db";
 import {Role} from "@prisma/client";
-import { CreateUserInput, UpdateUserInput, UpdateProfileInput, Roles } from "@/types/user";
+import { CreateUserInput, UpdateUserInput, UpdateProfileInput } from "@/types/user";
 
 const BASE_SELECT = {
   id: true,
@@ -152,12 +152,21 @@ export async function findAll(role?: Role) {
 }
 
 export async function create(data: CreateUserInput) {
-  return prisma.user.create({
+  return await prisma.user.create({
     data: {
       ...data,
-      role: (data.role || "USER") as Role,
+      role: data.role ?? "STUDENT",
     },
-    select: BASE_SELECT,
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      emailVerifiedAt: true,
+      createdAt: true,
+      updatedAt: true,
+      deletedAt: true,
+    },
   });
 }
 

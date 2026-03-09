@@ -3,41 +3,10 @@
 import { useEffect, useState } from "react";
 import { Search, Trash2, Ban, CheckCircle, UserCircle, Inbox, Flag, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-export interface UserData {
-  id: number;
-  name: string | null;
-  email: string | null;
-  status: "ACTIVE" | "SUSPENDED" | "PENDING";
-  isFlagged?: boolean;
-  courseCount: number; // Derived from length of enrolled courses array
-  createdAt?: Date | string | null;
-}
-
-interface UserProfileResponse {
-  id: number;
-  name: string;
-  email: string;
-  role: "STUDENT" | "INSTRUCTOR" | "ADMIN";
-  isFlagged: boolean;
-  createdAt: string;
-  courses: Array<{
-    id: number;
-    title: string;
-    isPublished: boolean;
-    createdAt: string;
-    _count: { enrollments: number };
-  }>;
-  enrollments: Array<{
-    id: number;
-    status: string;
-    enrolledAt: string;
-    course: { id: number; title: string; isPublished: boolean };
-  }>;
-}
+import type { UserProfileResponse, UserTableRow } from "@/types/admin";
 
 interface UsersTableProps {
-  data: UserData[];
+  data: UserTableRow[];
   entityLabel?: string;
   courseColumnLabel?: string;
 }
@@ -48,7 +17,7 @@ export const UsersTable = ({
   courseColumnLabel = "Courses Enrolled",
 }: UsersTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [rows, setRows] = useState<UserData[]>(data);
+  const [rows, setRows] = useState<UserTableRow[]>(data);
   const [selectedProfile, setSelectedProfile] = useState<UserProfileResponse | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
@@ -78,7 +47,7 @@ export const UsersTable = ({
     }
   };
 
-  const toggleFlag = async (user: UserData) => {
+  const toggleFlag = async (user: UserTableRow) => {
     try {
       setBusyUserId(user.id);
       const nextFlag = !user.isFlagged;

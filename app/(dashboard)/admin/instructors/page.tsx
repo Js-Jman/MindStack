@@ -1,9 +1,18 @@
 import { prisma } from "@/lib/db";
 import { UsersTable } from "@/components/admin/UsersTable";
-import type { UserData } from "@/components/admin/UsersTable";
+import type { UserTableRow } from "@/types/admin";
+
+type InstructorUser = {
+  id: number;
+  name: string;
+  email: string;
+  isFlagged: boolean;
+  createdAt: Date;
+  _count: { courses: number };
+};
 
 export default async function InstructorsPage() {
-  const instructors = await prisma.user.findMany({
+  const instructors = (await prisma.user.findMany({
     where: { role: "INSTRUCTOR" },
     orderBy: { createdAt: "desc" },
     include: {
@@ -11,9 +20,9 @@ export default async function InstructorsPage() {
         select: { courses: true },
       },
     },
-  });
+  })) as InstructorUser[];
 
-  const formattedInstructors: UserData[] = instructors.map((instructor) => ({
+  const formattedInstructors: UserTableRow[] = instructors.map((instructor: InstructorUser) => ({
     id: instructor.id,
     name: instructor.name,
     email: instructor.email,

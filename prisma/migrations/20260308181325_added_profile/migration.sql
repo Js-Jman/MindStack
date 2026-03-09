@@ -1,6 +1,7 @@
 -- AlterTable
 ALTER TABLE `users` ADD COLUMN `avatar_url` VARCHAR(500) NULL,
     ADD COLUMN `phone_number` VARCHAR(20) NULL;
+    ALTER TABLE `users` ADD COLUMN `is_flagged` BOOLEAN NOT NULL DEFAULT FALSE;
 
 -- CreateTable
 CREATE TABLE `user_profiles` (
