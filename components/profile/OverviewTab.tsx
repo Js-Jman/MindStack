@@ -1,4 +1,3 @@
-// components/profile/OverviewTab.tsx
 "use client";
 
 import { useState } from "react";
@@ -69,7 +68,6 @@ export function OverviewTab({
 
   return (
     <div className="space-y-6">
-      {/* Header row */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Overview</h2>
         {!editing ? (
@@ -110,16 +108,13 @@ export function OverviewTab({
         </p>
       )}
 
-      {/* Avatar */}
       <div className="flex justify-center">
         <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-primary text-3xl font-bold select-none">
           {initials}
         </div>
       </div>
 
-      {/* Fields */}
       <div className="grid gap-4">
-        {/* Name — editable */}
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
             <User className="w-3.5 h-3.5" /> Full Name
@@ -135,7 +130,6 @@ export function OverviewTab({
           )}
         </div>
 
-        {/* Email — always read-only */}
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
             <Mail className="w-3.5 h-3.5" /> Email Address
@@ -148,7 +142,6 @@ export function OverviewTab({
           </p>
         </div>
 
-        {/* Phone — editable */}
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
             <Phone className="w-3.5 h-3.5" /> Phone Number
