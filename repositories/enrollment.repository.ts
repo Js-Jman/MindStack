@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { EnrollmentStatus, ProgressStatus } from "@prisma/client";
+import { EnrollmentStatus, ProgressStatus, Prisma } from "@prisma/client";
 
 const instructorSelect = {
   id: true,
@@ -35,8 +35,11 @@ export async function enrollStudent(studentId: number, courseId: number) {
     });
 
     return enrollment;
-  } catch (error: any) {
-    if (error.code === "P2002") {
+  } catch (error: unknown) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
       throw new Error("Student is already enrolled in this course");
     }
     throw error;

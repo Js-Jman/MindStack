@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Brain } from "lucide-react";
 import Link from "next/link";
-import ProfileSheet from "@/components/ProfileSheet";
+import ProfileSheet from "@/components/admin/ProfileSheet";
 
 interface NavbarProps {
   userId?: number;
