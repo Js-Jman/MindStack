@@ -1,5 +1,6 @@
 import React from "react";
 import { Star, Users, Clock, Badge } from "lucide-react";
+import Image from "next/image";
 
 interface AvailableCourseCardProps {
   id: number;
@@ -37,15 +38,18 @@ export function AvailableCourseCard({
     Intermediate: "bg-blue-100 text-blue-800",
     Advanced: "bg-purple-100 text-purple-800",
   };
+  const learnerCount = (id * 37) % 500 + 50;
 
   return (
     <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden flex flex-col h-full">
       {/* Course Image */}
       <div className="relative h-48 bg-gradient-to-br from-purple-200 to-blue-200 overflow-hidden group">
         {image ? (
-          <img
+          <Image
             src={image}
             alt={title}
+            width={640}
+            height={360}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
@@ -79,9 +83,11 @@ export function AvailableCourseCard({
         {instructorName && (
           <div className="flex items-center gap-2 mb-3 pb-3 border-b border-gray-100">
             {instructorAvatar ? (
-              <img
+              <Image
                 src={instructorAvatar}
                 alt={instructorName}
+                width={28}
+                height={28}
                 className="w-7 h-7 rounded-full"
               />
             ) : (
@@ -113,7 +119,7 @@ export function AvailableCourseCard({
           </div>
           <div className="flex items-center gap-1 text-gray-600">
             <Users className="w-4 h-4 text-cyan-500" />
-            <span>{Math.floor(Math.random() * 500) + 50}+ learning</span>
+            <span>{learnerCount}+ learning</span>
           </div>
         </div>
 

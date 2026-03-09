@@ -6,6 +6,20 @@ import {
 } from "@/services/course.service";
 import { prisma } from "@/lib/db";
 
+type RawCourse = {
+  id: number;
+  title: string;
+  description: string;
+  thumbnailUrl: string | null;
+  instructorId: number;
+  price: number | { toString(): string } | null;
+};
+
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return "Unexpected error";
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -20,26 +34,27 @@ export async function GET(request: Request) {
 
     // Enrich data using Prisma relations
     const courses = await Promise.all(
-      rawCourses.map(async (c: any) => {
+      rawCourses.map(async (c) => {
+        const course = c as RawCourse;
         const sections = await prisma.courseSection.findMany({
-          where: { courseId: c.id },
+          where: { courseId: course.id },
           include: { lessons: true },
         });
 
         const instructor = await prisma.user.findUnique({
-          where: { id: c.instructorId },
+          where: { id: course.instructorId },
           select: { name: true },
         });
 
         const enrollment = await prisma.courseEnrollment.findUnique({
           where: {
-            courseId_userId: { courseId: c.id, userId: currentUserId },
+            courseId_userId: { courseId: course.id, userId: currentUserId },
           },
         });
 
         const cp = await prisma.courseProgress.findUnique({
           where: {
-            courseId_userId: { courseId: c.id, userId: currentUserId },
+            courseId_userId: { courseId: course.id, userId: currentUserId },
           },
         });
 
@@ -49,10 +64,10 @@ export async function GET(request: Request) {
         );
 
         return {
-          id: c.id,
-          title: c.title,
-          description: c.description,
-          image: c.thumbnailUrl ?? null,
+          id: course.id,
+          title: course.title,
+          description: course.description,
+          image: course.thumbnailUrl ?? null,
 
           instructorName: instructor?.name ?? "Unknown",
 
@@ -61,17 +76,17 @@ export async function GET(request: Request) {
           progress: cp ? Number(cp.completionPercentage) : 0,
           progressStatus: cp?.status ?? "NOT_STARTED",
 
-          price: c.price ? Number(c.price) : 0,
-          isFree: !c.price || Number(c.price) === 0,
+          price: course.price ? Number(course.price) : 0,
+          isFree: !course.price || Number(course.price) === 0,
         };
       }),
     );
 
     return NextResponse.json(courses);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching courses:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to fetch courses" },
+      { error: getErrorMessage(error) || "Failed to fetch courses" },
       { status: 500 },
     );
   }
@@ -82,8 +97,8 @@ export async function POST(request: Request) {
     const body = await request.json();
     const course = await createCourse(body);
     return NextResponse.json(course, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error creating course:", error);
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json({ error: getErrorMessage(error) }, { status: 400 });
   }
 }
