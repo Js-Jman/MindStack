@@ -273,9 +273,9 @@ export function useAuth() {
     // Use full page navigation — guarantees the browser sends the new
     // HttpOnly cookie on the very next request, no race condition
     if (data.user.role === "INSTRUCTOR") {
-      window.location.href = "/dashboard/instructor";
+      window.location.href = "/instructor";
     } else {
-      window.location.href = "/dashboard/student";
+      window.location.href = "/student";
     }
 
     return data.user as AuthUser;

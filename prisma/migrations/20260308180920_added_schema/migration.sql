@@ -35,6 +35,7 @@ CREATE TABLE `courses` (
     `title` VARCHAR(255) NOT NULL,
     `description` TEXT NOT NULL,
     `thumbnail_url` VARCHAR(500) NULL,
+    `introvideo_url` VARCHAR(500) NULL,
     `price` DECIMAL(10, 2) NULL,
     `is_published` BOOLEAN NOT NULL DEFAULT false,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),

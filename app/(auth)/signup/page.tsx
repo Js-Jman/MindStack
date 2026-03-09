@@ -136,9 +136,9 @@ export default function SignupPage() {
 
       // Redirect based on role
       if (data.user.role === "INSTRUCTOR") {
-        router.push("/dashboard/instructor");
+        router.push("/instructor");
       } else {
-        router.push("/dashboard/student");
+        router.push("/student");
       }
     } catch (e: any) {
       setError(e.message);

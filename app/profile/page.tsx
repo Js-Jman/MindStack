@@ -64,7 +64,7 @@ export default function ProfilePage() {
   if (!user) return null;
 
   const isStudent = user.role === "STUDENT";
-  const dashboardHref = isStudent ? "/dashboard/student" : "/dashboard/instructor";
+  const dashboardHref = isStudent ? "/student" : "/instructor";
 
   const tabs = [
     { id: "overview",  label: "Overview",          icon: <User     className="w-4 h-4" /> },
