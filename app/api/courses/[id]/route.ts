@@ -36,7 +36,7 @@ export async function GET(request: Request) {
       include: {
         sections: {
           where: { deletedAt: null },
-          include: { lessons: true },
+          include: { lessons: { include: { contents: true } } },
         },
       },
     });

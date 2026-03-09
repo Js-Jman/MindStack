@@ -25,6 +25,7 @@ interface LessonData {
   title: string;
   content: string;
   order: number;
+  contentId?: number;
 }
 
 interface QuizData {
@@ -93,8 +94,9 @@ export function CourseWizard({ courseId }: CourseWizardProps) {
                 lessonList.push({
                   id: `lesson-${l.id}`,
                   title: l.title,
-                  content: "",
+                  content: l.contents?.[0]?.contentBody || "",
                   order: idx + 1,
+                  contentId: l.contents?.[0]?.id,
                 });
               });
             });
@@ -107,7 +109,6 @@ export function CourseWizard({ courseId }: CourseWizardProps) {
               const quizList: QuizData[] = quizData.map((q: any, qi: number) => ({
                 id: `quiz-${q.id}`,
                 title: q.title,
-                lessonId: String(q.lessonId),
                 questions: q.questions.map((qq: any, qqi: number) => ({
                   id: `question-${qq.id}`,
                   question: qq.questionText,
@@ -156,8 +157,30 @@ export function CourseWizard({ courseId }: CourseWizardProps) {
         // optionally handle additional lesson/quiz creation here
       }
 
-      // Create lessons
+      // Create or update lessons
       for (const lesson of lessons) {
+        // Only update existing lessons when in edit mode
+        if (isEdit && lesson.id.startsWith('lesson-')) {
+          const lessonIdMatch = parseInt(lesson.id.replace('lesson-', ''));
+          if (!isNaN(lessonIdMatch) && lessonIdMatch > 0) {
+            // existing lesson - update it
+            const res = await fetch(`/api/lessons/${lessonIdMatch}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                title: lesson.title,
+                content: lesson.content,
+              }),
+            });
+            if (!res.ok) {
+              const txt = await res.text();
+              throw new Error(`Failed to update lesson: ${txt}`);
+            }
+            continue;
+          }
+        }
+        
+        // Create new lesson
         const res = await fetch("/api/lessons", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -170,17 +193,18 @@ export function CourseWizard({ courseId }: CourseWizardProps) {
         });
         if (!res.ok) {
           const txt = await res.text();
+          throw new Error(`Failed to create lesson: ${txt}`);
         }
       }
 
-      // Create quizzes
+      // Create only new quizzes (skip existing ones when editing)
       for (const quiz of quizzes) {
-        // convert lessonId from UI value to numeric or undefined
-        let lessonIdToSend = undefined;
-        if (quiz.lessonId && quiz.lessonId !== "none") {
-          const num = Number(quiz.lessonId);
-          if (!isNaN(num)) {
-            lessonIdToSend = num;
+        // Skip existing quizzes when in edit mode
+        if (isEdit && quiz.id.startsWith('quiz-')) {
+          const quizIdMatch = parseInt(quiz.id.replace('quiz-', ''));
+          if (!isNaN(quizIdMatch) && quizIdMatch > 0) {
+            // This is an existing quiz, skip it
+            continue;
           }
         }
 
@@ -190,13 +214,13 @@ export function CourseWizard({ courseId }: CourseWizardProps) {
           body: JSON.stringify({
             courseId: course.id,
             title: quiz.title,
-            lessonId: lessonIdToSend,
             order: quiz.order,
           }),
         });
 
         if (!quizResponse.ok) {
           const txt = await quizResponse.text();
+          continue;
         }
 
         const createdQuiz = await quizResponse.json();

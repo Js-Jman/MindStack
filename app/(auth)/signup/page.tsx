@@ -50,6 +50,7 @@ export default function SignupPage() {
     } catch (e: any) {
       const msg = e.message || "Sign up failed";
       setError(msg);
+
     } finally {
       setLoading(false);
     }
