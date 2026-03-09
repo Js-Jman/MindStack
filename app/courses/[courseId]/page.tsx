@@ -1,9 +1,10 @@
 import { prisma } from "@/lib/db";
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Course } from "@/types/course"; // Import your custom type
 import { CheckCircle2, PlayCircle } from "lucide-react"; // Helpful icons
+import { getSession } from "@/lib/auth";
 
 type Params = { courseId: string };
 
@@ -16,7 +17,12 @@ export default async function CoursePage({
   const courseIdNum = Number(courseId);
   if (!Number.isInteger(courseIdNum)) return notFound();
 
-  const currentUserId = 13;
+  const session = await getSession();
+  if (!session?.userId) {
+    redirect("/signin");
+  }
+
+  const currentUserId = Number(session.userId);
 
   const courseData = await prisma.course.findUnique({
     where: { id: courseIdNum },

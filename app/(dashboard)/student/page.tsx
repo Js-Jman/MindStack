@@ -7,6 +7,7 @@ import { SearchBar } from "@/components/dashboard/SearchBar";
 import { EnrolledCourseCard } from "@/components/dashboard/EnrolledCourseCard";
 import { EnrollCoursesDialog } from "@/components/dashboard/EnrollCoursesDialog";
 import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
 
 interface Course {
   id: number;
@@ -31,6 +32,7 @@ interface Stats {
 
 export default function StudentDashboard() {
   const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
 
   const [enrolledCourses, setEnrolledCourses] = useState<Course[]>([]);
   const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
@@ -227,6 +229,7 @@ export default function StudentDashboard() {
                   progress={course.progress || 0}
                   lessonCount={course.lessonCount}
                   rating={course.rating}
+                  onClick={() => router.push(`/courses/${course.id}`)}
                 />
               ))}
             </div>

@@ -4,7 +4,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import MarkDoneButton from "@/components/markAsDone";
 import { getLessonById } from "@/services/lesson.service";
-import { auth } from "@/auth";
+import { getSession } from "@/lib/auth";
 import {
   BookOpen,
   ChevronLeft,
@@ -29,12 +29,12 @@ export default async function LessonPage({ params }: Props) {
     return notFound();
   }
 
-  const session = await auth();
-  if (!session?.user?.id) {
-    redirect("/auth/signin");
+  const session = await getSession();
+  if (!session?.userId) {
+    redirect("/signin");
   }
 
-  const currentUserId = Number(session.user.id);
+  const currentUserId = Number(session.userId);
 
   const lessonRecord = await getLessonById(
     lessonIdNum,
