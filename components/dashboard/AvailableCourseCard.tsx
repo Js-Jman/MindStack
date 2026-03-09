@@ -1,6 +1,7 @@
 import React from "react";
 import { Star, Users, Clock, Badge } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 interface AvailableCourseCardProps {
   id: number;
@@ -124,26 +125,35 @@ export function AvailableCourseCard({
         </div>
 
         {/* Enroll Button */}
-        <button
-          onClick={onEnroll}
-          disabled={isEnrolled || isLoading}
-          className={`w-full py-2 rounded-lg font-semibold transition-all duration-200 text-sm ${
-            isEnrolled
-              ? "bg-gray-100 text-gray-500 cursor-not-allowed"
-              : "bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:shadow-lg hover:shadow-purple-300 active:scale-95"
-          } ${isLoading ? "opacity-75" : ""}`}
-        >
-          {isLoading ? (
-            <span className="inline-flex items-center gap-2">
-              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              Enrolling...
-            </span>
-          ) : isEnrolled ? (
-            "Already Enrolled"
-          ) : (
-            "Enroll Now"
-          )}
-        </button>
+        <div className="grid grid-cols-2 gap-2">
+          <Link
+            href={`/courses/${id}`}
+            className="inline-flex items-center justify-center py-2 rounded-lg border border-purple-200 text-purple-700 font-semibold text-sm hover:bg-purple-50 transition-colors"
+          >
+            View Details
+          </Link>
+
+          <button
+            onClick={onEnroll}
+            disabled={isEnrolled || isLoading}
+            className={`w-full py-2 rounded-lg font-semibold transition-all duration-200 text-sm ${
+              isEnrolled
+                ? "bg-gray-100 text-gray-500 cursor-not-allowed"
+                : "bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:shadow-lg hover:shadow-purple-300 active:scale-95"
+            } ${isLoading ? "opacity-75" : ""}`}
+          >
+            {isLoading ? (
+              <span className="inline-flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Enrolling...
+              </span>
+            ) : isEnrolled ? (
+              "Enrolled"
+            ) : (
+              "Enroll Now"
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

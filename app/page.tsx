@@ -173,12 +173,6 @@ export default function Page() {
                   <div key={course.id} className="bg-white rounded-xl shadow p-8 flex flex-col">
                     <div className="font-bold text-lg text-purple-700 mb-2">{course.title}</div>
                     <div className="text-gray-600 mb-4">{course.description}</div>
-                    <a
-                      href={`/courses/${course.id}`}
-                      className="mt-auto px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg font-semibold text-center hover:shadow-lg transition-all duration-200"
-                    >
-                      View Course
-                    </a>
                   </div>
                 ))}
               </div>

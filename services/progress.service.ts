@@ -132,14 +132,16 @@ export async function markLessonDone(
       update: {
         status: lessonStatus,
         lastAccessedAt: now,
-        completedAt: done ? now : null,
+        // In current schema completedAt is non-null, so avoid null assignment on undo.
+        ...(done ? { completedAt: now } : {}),
       },
       create: {
         lessonId,
         userId: studentId,
         status: lessonStatus,
         lastAccessedAt: now,
-        completedAt: done ? now : null,
+        // Keep non-null for required DB column.
+        completedAt: now,
       },
     });
 
