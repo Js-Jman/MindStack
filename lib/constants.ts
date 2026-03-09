@@ -1,4 +1,3 @@
-// lib/constants.ts
 export const APP_NAME = "MindStack";
 export const JWT_EXPIRY_DAYS = 7;
 export const RESET_CODE_EXPIRY_MINUTES = 15;

@@ -1,4 +1,3 @@
-// components/profile/StudentPersonalDetailsTab.tsx
 "use client";
 
 import { useState } from "react";
@@ -97,7 +96,6 @@ export function StudentPersonalDetailsTab({
       )}
 
       <div className="grid gap-5">
-        {/* College */}
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
             <GraduationCap className="w-3.5 h-3.5" /> College / Institution
@@ -118,7 +116,6 @@ export function StudentPersonalDetailsTab({
           )}
         </div>
 
-        {/* Skills */}
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
             <Lightbulb className="w-3.5 h-3.5" /> Skills
@@ -140,7 +137,6 @@ export function StudentPersonalDetailsTab({
           )}
         </div>
 
-        {/* Interests */}
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
             <Star className="w-3.5 h-3.5" /> Interests
