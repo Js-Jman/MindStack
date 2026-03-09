@@ -1,7 +1,6 @@
 "use client";
 
 import Navbar from "@/components/Navbar";
-import Sidebar from "@/components/Sidebar";
 import { SearchBar } from "@/components/dashboard/SearchBar";
 import React, { useState, useEffect } from "react";
 
@@ -56,6 +55,14 @@ export default function Page() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Landing page should always start as public, clear any cached auth cookie.
+    void fetch("/api/auth/signout", {
+      method: "POST",
+      credentials: "include",
+    });
+  }, []);
+
+  useEffect(() => {
     (async () => {
       try {
         setIsLoadingCourses(true);
@@ -90,12 +97,8 @@ export default function Page() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-white">
-      <Navbar />
-      <div className="flex w-full max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-10 gap-10">
-        <aside className="w-64 shrink-0 hidden md:block sticky top-8 h-[calc(100vh-4rem)]">
-          <Sidebar />
-        </aside>
-
+      <Navbar forcePublic />
+      <div className="w-full max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-10">
         <main className="flex-1 min-w-0 flex flex-col gap-10">
           <div className="mb-8">
             <section className="flex flex-col md:flex-row md:items-center gap-6 md:gap-8 mb-6">
@@ -173,12 +176,6 @@ export default function Page() {
                   <div key={course.id} className="bg-white rounded-xl shadow p-8 flex flex-col">
                     <div className="font-bold text-lg text-purple-700 mb-2">{course.title}</div>
                     <div className="text-gray-600 mb-4">{course.description}</div>
-                    <a
-                      href={`/courses/${course.id}`}
-                      className="mt-auto px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg font-semibold text-center hover:shadow-lg transition-all duration-200"
-                    >
-                      View Course
-                    </a>
                   </div>
                 ))}
               </div>
