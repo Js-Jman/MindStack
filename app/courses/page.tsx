@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import { SearchBar } from "@/components/dashboard/SearchBar";
 import Link from "next/link";
+import Image from "next/image";
 
 type CourseVM = {
   id: number;
@@ -39,7 +40,6 @@ const FILTERS: { key: FilterKey; label: string }[] = [
 
 export default function CoursesPage() {
   const [courses, setCourses] = useState<CourseVM[]>([]);
-  const [filtered, setFiltered] = useState<CourseVM[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<FilterKey>("ALL");
 
@@ -51,17 +51,15 @@ export default function CoursesPage() {
       const res = await fetch("/api/courses", { cache: "no-store" });
       const data = await res.json();
       setCourses(data);
-      setFiltered(data);
       setLoading(false);
     }
     load();
   }, []);
 
-  // Apply filters and search
-  useEffect(() => {
+  const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
 
-    const next = courses.filter((c) => {
+    return courses.filter((c) => {
       // Filter pills
       const pass =
         activeFilter === "ALL" ||
@@ -83,8 +81,6 @@ export default function CoursesPage() {
         (c.instructorName ?? "").toLowerCase().includes(q)
       );
     });
-
-    setFiltered(next);
   }, [query, activeFilter, courses]);
 
   return (
@@ -160,9 +156,11 @@ export default function CoursesPage() {
                   {/* Image */}
                   {c.image && (
                     <div className="w-full h-40 bg-gray-100 overflow-hidden">
-                      <img
+                      <Image
                         src={c.image}
                         alt={c.title}
+                        width={640}
+                        height={320}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>

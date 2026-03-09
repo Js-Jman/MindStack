@@ -38,17 +38,9 @@ export default async function CoursePage({
 
   if (!course) return notFound();
 
-  const totalLessons = course.sections.reduce(
-    (acc, s) => acc + s.lessons.length,
-    0,
-  );
-
   const progress = course.courseProgress[0]
     ? Number(course.courseProgress[0].completionPercentage)
     : 0;
-
-  const flatLessons = course.sections.flatMap((s) => s.lessons);
-  const firstLesson = flatLessons[0];
 
   return (
     <div className="min-h-screen bg-[#f7f8fc]">
