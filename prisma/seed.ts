@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import type { SeedCourseSpec } from "../types/seed";
+import { hash } from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -25,6 +26,40 @@ async function resetDatabase() {
 }
 
 const d = (n: number): number => n;
+
+type SeedQuizQuestion = {
+  questionText: string;
+  options: string[];
+  correctIndex: number;
+};
+
+function buildQuizQuestions(
+  courseTitle: string,
+  lessonTitle: string,
+): SeedQuizQuestion[] {
+  return [
+    {
+      questionText: `In ${courseTitle}, what is the primary goal of "${lessonTitle}"?`,
+      options: [
+        "Understand the core concept and apply it in practice",
+        "Skip fundamentals and start with advanced optimizations",
+        "Memorize syntax without understanding use cases",
+        "Focus only on tooling setup",
+      ],
+      correctIndex: 0,
+    },
+    {
+      questionText: `Which action best demonstrates mastery of "${lessonTitle}"?`,
+      options: [
+        "Implementing the concept in a small project exercise",
+        "Reading the title once and moving to the next lesson",
+        "Avoiding experiments to prevent mistakes",
+        "Ignoring edge cases and validation",
+      ],
+      correctIndex: 0,
+    },
+  ];
+}
 
 async function createCourseWithContent(
   instructorId: number,
@@ -86,7 +121,7 @@ async function createCourseWithContent(
         ],
       });
 
-      // Simple quiz: 1 question, 2 options
+      // Create richer quizzes for every lesson (2 questions, 4 options each)
       const quiz = await prisma.quiz.create({
         data: {
           lessonId: lesson.id,
@@ -94,27 +129,23 @@ async function createCourseWithContent(
         },
       });
 
-      const question = await prisma.quizQuestion.create({
-        data: {
-          quizId: quiz.id,
-          questionText: `What is the key takeaway from "${lessonSpec.title}"?`,
-        },
-      });
+      const questions = buildQuizQuestions(spec.title, lessonSpec.title);
+      for (const q of questions) {
+        const question = await prisma.quizQuestion.create({
+          data: {
+            quizId: quiz.id,
+            questionText: q.questionText,
+          },
+        });
 
-      await prisma.quizOption.createMany({
-        data: [
-          {
+        await prisma.quizOption.createMany({
+          data: q.options.map((optionText, index) => ({
             questionId: question.id,
-            optionText: "The core concept and how to apply it",
-            isCorrect: true,
-          },
-          {
-            questionId: question.id,
-            optionText: "Irrelevant details not covered here",
-            isCorrect: false,
-          },
-        ],
-      });
+            optionText,
+            isCorrect: index === q.correctIndex,
+          })),
+        });
+      }
     }
   }
 
@@ -170,12 +201,14 @@ async function main() {
   console.log("Starting seed...");
   await resetDatabase();
 
+  const hashedPassword = await hash("password123", 10);
+
   //Users
   const student = await prisma.user.create({
     data: {
       name: "John Doe",
       email: "student@example.com",
-      password: "hashedpassword123",
+      password: hashedPassword,
       role: "STUDENT",
     },
   });
@@ -184,7 +217,7 @@ async function main() {
     data: {
       name: "Priya Nair",
       email: "priya.student@example.com",
-      password: "hashedpassword123",
+      password: hashedPassword,
       role: "STUDENT",
       isFlagged: true,
     },
@@ -194,7 +227,7 @@ async function main() {
     data: {
       name: "Admin User",
       email: "admin@example.com",
-      password: "hashedpassword123",
+      password: hashedPassword,
       role: "ADMIN",
     },
   });
@@ -203,7 +236,7 @@ async function main() {
     data: {
       name: "John Smith",
       email: "john.instructor@example.com",
-      password: "hashedpassword123",
+      password: hashedPassword,
       role: "INSTRUCTOR",
     },
   });
@@ -212,7 +245,7 @@ async function main() {
     data: {
       name: "Sarah Johnson",
       email: "sarah.instructor@example.com",
-      password: "hashedpassword123",
+      password: hashedPassword,
       role: "INSTRUCTOR",
     },
   });
@@ -221,7 +254,7 @@ async function main() {
     data: {
       name: "Mike Wilson",
       email: "mike.instructor@example.com",
-      password: "hashedpassword123",
+      password: hashedPassword,
       role: "INSTRUCTOR",
       isFlagged: true,
     },
@@ -229,9 +262,12 @@ async function main() {
 
   // Reusable demo media
   const demoVideos = [
-    "https://res.cloudinary.com/djfefn9qx/video/upload/v1772780658/videoplayback_csonvy.mp4",
-    "https://res.cloudinary.com/djfefn9qx/video/upload/v1772780658/videoplayback_csonvy.mp4",
-    "https://res.cloudinary.com/djfefn9qx/video/upload/v1772780658/videoplayback_csonvy.mp4",
+    "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    "https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+    "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+    "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+    "https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
   ];
 
   const coursesData: SeedCourseSpec[] = [
@@ -263,6 +299,14 @@ async function main() {
                 "https://images.unsplash.com/photo-1517433456452-f9633a875f6f?w=1200&fit=crop",
               videoUrl: demoVideos[2],
             },
+            {
+              title: "CSS Layout Essentials",
+              textHtml:
+                "<h3>Modern Layout</h3><p>Combine <strong>Flexbox</strong> for one-dimensional layouts and <strong>Grid</strong> for two-dimensional sections.</p>",
+              imageUrl:
+                "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&fit=crop",
+              videoUrl: demoVideos[3],
+            },
           ],
         },
       ],
@@ -284,6 +328,14 @@ async function main() {
               imageUrl:
                 "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=1200&fit=crop",
               videoUrl: demoVideos[0],
+            },
+            {
+              title: "Memoization and Rendering",
+              textHtml:
+                "<h3>Performance Tuning</h3><p>Use <code>React.memo</code>, <code>useMemo</code>, and <code>useCallback</code> to reduce unnecessary renders.</p>",
+              imageUrl:
+                "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1200&fit=crop",
+              videoUrl: demoVideos[4],
             },
           ],
         },
@@ -307,6 +359,14 @@ async function main() {
                 "https://images.unsplash.com/photo-1500964757637-c85e8a162699?w=1200&fit=crop",
               videoUrl: demoVideos[1],
             },
+            {
+              title: "Prisma Query Patterns",
+              textHtml:
+                "<h3>Efficient Data Access</h3><p>Use <code>select</code> and <code>include</code> strategically to return only the fields your API needs.</p>",
+              imageUrl:
+                "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&fit=crop",
+              videoUrl: demoVideos[5],
+            },
           ],
         },
       ],
@@ -328,6 +388,14 @@ async function main() {
               imageUrl:
                 "https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=1200&fit=crop",
               videoUrl: demoVideos[2],
+            },
+            {
+              title: "Indexing Strategy",
+              textHtml:
+                "<h3>Faster Queries</h3><p>Create indexes on frequently filtered columns and validate gains using query plans.</p>",
+              imageUrl:
+                "https://images.unsplash.com/photo-1543286386-713bdd548da4?w=1200&fit=crop",
+              videoUrl: demoVideos[3],
             },
           ],
         },

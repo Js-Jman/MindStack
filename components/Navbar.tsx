@@ -6,11 +6,11 @@ import ProfileSheet from "@/components/ProfileSheet";
 import Link from "next/link";
 
 interface NavbarProps {
-  userId?: number;
+  forcePublic?: boolean;
 }
 import { useAuth } from "@/hooks/useAuth";
 
-export default function Navbar() {
+export default function Navbar({ forcePublic = false }: NavbarProps) {
   const { user, loading, signout } = useAuth();
   const [profileOpen, setProfileOpen] = useState(false);
 
@@ -38,7 +38,7 @@ export default function Navbar() {
 
         <div className="flex-1" />
 
-        {!loading && user && (
+        {!forcePublic && !loading && user && (
           <button
             onClick={() => setProfileOpen(true)}
             className="flex items-center gap-2.5 px-3 py-1.5 rounded-full border hover:bg-muted transition-colors group"
@@ -51,7 +51,7 @@ export default function Navbar() {
           </button>
         )}
 
-        {!loading && !user && (
+        {(forcePublic || (!loading && !user)) && (
           <div className="flex items-center gap-2">
             <Link
               href="/signin"
@@ -69,7 +69,7 @@ export default function Navbar() {
         )}
       </nav>
 
-      {user && (
+      {!forcePublic && user && (
         <ProfileSheet
           isOpen={profileOpen}
           onClose={() => setProfileOpen(false)}

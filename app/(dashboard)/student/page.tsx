@@ -55,7 +55,7 @@ export default function StudentDashboard() {
     const fetchEnrolledCourses = async () => {
       try {
         setIsLoadingCourses(true);
-        const response = await fetch(`/api/enrollments?studentId=${studentId}`);
+        const response = await fetch(`/api/enrollments`);
         if (!response.ok) throw new Error("Failed to fetch courses");
         const data = await response.json();
         setEnrolledCourses(data);
@@ -77,7 +77,7 @@ export default function StudentDashboard() {
     const fetchStats = async () => {
       try {
         setIsLoadingStats(true);
-        const response = await fetch(`/api/stats?studentId=${studentId}`);
+        const response = await fetch(`/api/stats`);
         if (!response.ok) throw new Error("Failed to fetch stats");
         const data = await response.json();
         setStats(data);
@@ -109,8 +109,8 @@ export default function StudentDashboard() {
     if (!studentId) return;
     try {
       const [cRes, sRes] = await Promise.all([
-        fetch(`/api/enrollments?studentId=${studentId}`),
-        fetch(`/api/stats?studentId=${studentId}`),
+        fetch(`/api/enrollments`),
+        fetch(`/api/stats`),
       ]);
       if (cRes.ok) {
         const d = await cRes.json();
@@ -240,7 +240,6 @@ export default function StudentDashboard() {
       <EnrollCoursesDialog
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
-        studentId={studentId ?? 0}
         enrolledCourseIds={enrolledCourses.map((c) => c.id)}
         onEnrollSuccess={handleEnrollSuccess}
       />
