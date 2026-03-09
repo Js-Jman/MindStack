@@ -205,6 +205,25 @@ async function main() {
     },
   });
 
+  const student2 = await prisma.user.create({
+    data: {
+      name: "Priya Nair",
+      email: "priya.student@example.com",
+      password: "hashedpassword123",
+      role: "STUDENT",
+      isFlagged: true,
+    },
+  });
+
+  await prisma.user.create({
+    data: {
+      name: "Admin User",
+      email: "admin@example.com",
+      password: "hashedpassword123",
+      role: "ADMIN",
+    },
+  });
+
   const instructor1 = await prisma.user.create({
     data: {
       name: "John Smith",
@@ -229,6 +248,7 @@ async function main() {
       email: "mike.instructor@example.com",
       password: "hashedpassword123",
       role: "INSTRUCTOR",
+      isFlagged: true,
     },
   });
 
@@ -509,6 +529,8 @@ async function main() {
       { userId: student.id, courseId: createdCourses[0].id, status: "ACTIVE" },
       { userId: student.id, courseId: createdCourses[1].id, status: "ACTIVE" },
       { userId: student.id, courseId: createdCourses[3].id, status: "ACTIVE" },
+      { userId: student2.id, courseId: createdCourses[1].id, status: "ACTIVE" },
+      { userId: student2.id, courseId: createdCourses[2].id, status: "ACTIVE" },
     ],
   });
 
@@ -546,6 +568,38 @@ async function main() {
       where: { userId: student.id, courseId: course.id },
     });
     await computeAndUpsertCourseProgress(student.id, course.id);
+  }
+
+  // Add partial progress for second student for richer profile view
+  for (const course of [createdCourses[1], createdCourses[2]]) {
+    const lessons = await prisma.lesson.findMany({
+      where: { section: { courseId: course.id } },
+      orderBy: [{ section: { sectionOrder: "asc" } }, { lessonOrder: "asc" }],
+      select: { id: true },
+    });
+
+    if (lessons[0]) {
+      await prisma.lessonProgress.upsert({
+        where: {
+          lessonId_userId: { lessonId: lessons[0].id, userId: student2.id },
+        },
+        create: {
+          lessonId: lessons[0].id,
+          userId: student2.id,
+          status: "COMPLETED",
+          completedAt: new Date(),
+        },
+        update: {
+          status: "COMPLETED",
+          completedAt: new Date(),
+        },
+      });
+    }
+
+    await prisma.courseProgress.deleteMany({
+      where: { userId: student2.id, courseId: course.id },
+    });
+    await computeAndUpsertCourseProgress(student2.id, course.id);
   }
 
   console.log("Seed completed successfully! ✅");

@@ -307,6 +307,7 @@ export default function Page() {
   const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [, setIsDialogOpen] = useState(false);
   const [isLoadingCourses, setIsLoadingCourses] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -359,6 +360,7 @@ export default function Page() {
             <section className="flex flex-col md:flex-row md:items-center gap-6 md:gap-8 mb-6">
               <div className="flex-1 min-w-0 relative">
                 <SearchBar onSearch={handleSearch} placeholder="Search courses..." />
+                {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
                 {showSuggestions && searchQuery && filteredCourses.length > 0 && (
                   <div className="absolute left-0 right-0 z-30 bg-white border border-purple-100 rounded-lg shadow-lg mt-2 max-h-64 overflow-y-auto">
                     {filteredCourses.slice(0, 8).map((course) => (
@@ -386,8 +388,14 @@ export default function Page() {
               Empowering learners and instructors with a modern, intuitive platform.
             </p>
             <p className="text-md text-gray-600 max-w-2xl">
-              Discover a wide variety of courses, track your progress with detailed analytics, and
-              unlock your potential with interactive learning tools.
+              Discover a wide variety of courses, track your progress with
+              detailed analytics, and unlock your potential with interactive
+              learning tools. MindStack LMS brings together students,
+              instructors, and a vibrant community to foster growth,
+              collaboration, and lifelong learning. Whether you&apos;re looking to
+              master a new skill, teach others, or simply explore new topics,
+              our platform provides all the resources and support you need to
+              succeed in your educational journey.
             </p>
           </section>
 

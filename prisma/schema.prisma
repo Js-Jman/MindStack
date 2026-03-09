@@ -16,6 +16,7 @@ model User {
   role                  Role
   avatarUrl             String?                @map("avatar_url") @db.VarChar(500)
   phoneNumber           String?                @map("phone_number") @db.VarChar(20)
+  isFlagged       Boolean   @default(false) @map("is_flagged")
   emailVerifiedAt       DateTime?              @map("email_verified_at")
   createdAt             DateTime               @default(now()) @map("created_at")
   updatedAt             DateTime               @updatedAt @map("updated_at")
@@ -245,6 +246,7 @@ model LessonProgress {
   userId         Int            @map("user_id") @db.UnsignedInt
   status         ProgressStatus
   lastAccessedAt DateTime?      @map("last_accessed_at")
+  completedAt      DateTime       @updatedAt @map("completed_at")
   updatedAt      DateTime       @updatedAt @map("updated_at")
   lesson         Lesson         @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)

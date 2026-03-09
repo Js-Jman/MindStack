@@ -17,13 +17,13 @@
 // };
 
 // types/user.ts
-export type Role = "STUDENT" | "INSTRUCTOR" | "ADMIN";
+export type Roles = "STUDENT" | "INSTRUCTOR" | "ADMIN";
 
 export type User = {
   id: number;
   name: string;
   email: string;
-  role: Role;
+  role: Roles;
   profile?: UserProfile | null;
   phoneNumber?: string | null;
   avatarUrl?: string | null;
@@ -53,7 +53,7 @@ export type CreateUserInput = {
   name: string;
   email: string;
   password: string;
-  role?: Role;
+  role?: Roles;
 };
 
 export type UpdateUserInput = {

@@ -7,16 +7,20 @@ const instructorSelect = {
   email: true,
 };
 
-function withLessonCount(course: any) {
+type CourseLikeWithSections = {
+  sections?: Array<{ lessons?: Array<{ id: number; title: string }> }>;
+};
+
+function withLessonCount<T extends CourseLikeWithSections>(course: T) {
   const lessonCount = course.sections?.reduce(
-    (sum: number, section: any) => sum + (section.lessons?.length || 0),
+    (sum, section) => sum + (section.lessons?.length || 0),
     0,
   );
 
   return {
     ...course,
     lessonCount,
-  } as Course;
+  };
 }
 
 export async function findAll(): Promise<Course[]> {

@@ -38,17 +38,9 @@ export default async function CoursePage({
 
   if (!course) return notFound();
 
-  const totalLessons = course.sections.reduce(
-    (acc, s) => acc + s.lessons.length,
-    0,
-  );
-
   const progress = course.courseProgress[0]
     ? Number(course.courseProgress[0].completionPercentage)
     : 0;
-
-  const flatLessons = course.sections.flatMap((s) => s.lessons);
-  const firstLesson = flatLessons[0];
 
   return (
     <div className="min-h-screen bg-[#f7f8fc]">
@@ -84,7 +76,7 @@ export default async function CoursePage({
             </div>
           </div>
 
-          {/* Navigation buttons (like SkillSync tabs) */}
+          {/* Navigation buttons */}
           <div className="mt-8 flex gap-3 flex-wrap">
             <button className="px-4 py-2 rounded-full bg-white text-purple-700 font-semibold shadow">
               Overview

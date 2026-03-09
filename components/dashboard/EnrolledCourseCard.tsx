@@ -1,5 +1,6 @@
 import React from "react";
 import { Star, BarChart3, BookOpen } from "lucide-react";
+import Image from "next/image";
 
 interface EnrolledCourseCardProps {
   id: number;
@@ -25,14 +26,17 @@ export function EnrolledCourseCard({
   return (
     <div
       onClick={onClick}
+      data-course-id={id}
       className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-200 cursor-pointer group"
     >
       {/* Course Image */}
       <div className="relative h-40 overflow-hidden bg-gradient-to-br from-purple-200 to-blue-200">
         {image ? (
-          <img
+          <Image
             src={image}
             alt={title}
+            width={640}
+            height={240}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
