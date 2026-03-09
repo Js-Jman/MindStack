@@ -57,7 +57,7 @@ export default function Page() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [, setIsDialogOpen] = useState(false);
   const [isLoadingCourses, setIsLoadingCourses] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -70,7 +70,7 @@ export default function Page() {
         const data = await response.json();
         setCourses(data);
         setFilteredCourses(data);
-      } catch (err) {
+      } catch {
         setError("Failed to load courses");
       } finally {
         setIsLoadingCourses(false);
@@ -115,6 +115,7 @@ export default function Page() {
                   onSearch={handleSearch}
                   placeholder="Search courses..."
                 />
+                {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
                 {/* Suggestions Dropdown for course names */}
                 {showSuggestions &&
                   searchQuery &&
@@ -162,7 +163,7 @@ export default function Page() {
               detailed analytics, and unlock your potential with interactive
               learning tools. MindStack LMS brings together students,
               instructors, and a vibrant community to foster growth,
-              collaboration, and lifelong learning. Whether you're looking to
+              collaboration, and lifelong learning. Whether you&apos;re looking to
               master a new skill, teach others, or simply explore new topics,
               our platform provides all the resources and support you need to
               succeed in your educational journey.
@@ -171,7 +172,7 @@ export default function Page() {
 
           {/* Features Section */}
           <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-            {features.map((feature, idx) => (
+            {features.map((feature) => (
               <div
                 key={feature.title}
                 className="bg-gradient-to-br from-purple-50 via-blue-50 to-white border border-purple-200 rounded-xl shadow-lg p-6 flex flex-col items-center text-center hover:scale-105 transition-transform duration-200"
