@@ -2,13 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { User } from "@/types/user";
 
-export interface AuthUser {
-  id: number;
-  name: string;
-  email: string;
-  role: "STUDENT" | "INSTRUCTOR" | "ADMIN";
-}
+export type AuthUser = Pick<User, 'id' | 'name' | 'email' | 'role'>;
 
 export function useAuth() {
   const [user, setUser] = useState<AuthUser | null>(null);

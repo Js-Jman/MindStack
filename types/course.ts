@@ -62,6 +62,7 @@ export type CreateCourseInput = {
   title: string;
   description: string;
   thumbnailUrl?: string | null;
+  introVideoUrl?: string | null;
   price?: number | null;
   isPublished?: boolean;
 };

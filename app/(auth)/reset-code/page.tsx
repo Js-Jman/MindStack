@@ -40,6 +40,7 @@ export default function ResetCodePage() {
       sessionStorage.removeItem("pwr_session");
       sessionStorage.setItem("pwr_reset", data.resetToken);
       router.push("/reset-password");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       setError(e.message);
     } finally {
