@@ -2,7 +2,6 @@ import { prisma } from "@/lib/db";
 import { UsersTable } from "@/components/admin/UsersTable";
 import type { UserData } from "@/components/admin/UsersTable";
 
-// This MUST be the default export
 export default async function UsersPage() {
   // Fetch users with their enrollment count from Prisma
   const users = await prisma.user.findMany({
@@ -16,7 +15,6 @@ export default async function UsersPage() {
     },
   });
 
-  // Transform data to match the table's expected format
   const formattedUsers: UserData[] = users.map((user) => ({
     id: user.id,
     name: user.name,
@@ -33,7 +31,6 @@ export default async function UsersPage() {
         <p className="text-sm text-slate-500">Manage student accounts and monitor course engagement.</p>
       </div>
 
-      {/* The table will handle the "No Data" state internally */}
       <UsersTable data={formattedUsers} />
     </div>
   );
