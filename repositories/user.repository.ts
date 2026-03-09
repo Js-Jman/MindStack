@@ -103,8 +103,9 @@
 // }
 
 // repositories/user.repository.ts
-import { prisma } from "@/lib/db";
-import { CreateUserInput, UpdateUserInput, UpdateProfileInput, Role } from "@/types/user";
+import { prisma} from "@/lib/db";
+import {Role} from "@prisma/client";
+import { CreateUserInput, UpdateUserInput, UpdateProfileInput, Roles } from "@/types/user";
 
 const BASE_SELECT = {
   id: true,
@@ -141,9 +142,11 @@ export async function findByEmailWithPassword(email: string) {
   });
 }
 
-export async function findAll(role?: string) {
+export async function findAll(role?: Role) {
   return prisma.user.findMany({
-    where: role ? { role: role as Role } : undefined,
+    where: role
+      ? { role: role as Role }
+      : { role: { in: [Role.STUDENT, Role.INSTRUCTOR] } },
     select: BASE_SELECT,
   });
 }

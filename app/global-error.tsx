@@ -14,6 +14,7 @@ export default function GlobalError({
           <h1 className="text-4xl font-bold">
             Application Error Page Working
           </h1>
+          <p className="mt-2 text-sm text-gray-600">{error.message}</p>
           <button
             onClick={() => reset()}
             className="mt-4 rounded bg-black px-4 py-2 text-white"
