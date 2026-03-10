@@ -50,7 +50,6 @@ export default function Page() {
   const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [, setIsDialogOpen] = useState(false);
   const [isLoadingCourses, setIsLoadingCourses] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

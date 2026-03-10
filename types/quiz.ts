@@ -1,17 +1,35 @@
-import { Prisma, Quiz, QuizQuestion, QuizOption } from "@prisma/client";
+export type QuizOption = {
+  id: number;
+  optionText: string;
+  isCorrect: boolean;
+};
+
+export type QuizQuestion = {
+  id: number;
+  quizId: number;
+  questionText: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
+
+export type Quiz = {
+  id: number;
+  lessonId: number;
+  title: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
 
 // payload when fetching a quiz with its questions and options
-export type FullQuiz = Prisma.QuizGetPayload<{
-  include: {
-    questions: {
-      include: { options: true };
-      orderBy: { id: "asc" };
-    };
-  };
-}>;
+export type FullQuiz = Quiz & {
+  questions: Array<QuizQuestion & { options: QuizOption[] }>;
+};
 
 // simplified quiz list item
-export type QuizListItem = Pick<Quiz, "id" | "lessonId" | "title" | "createdAt" | "updatedAt">;
+export type QuizListItem = Pick<
+  Quiz,
+  "id" | "lessonId" | "title" | "createdAt" | "updatedAt"
+>;
 
 // DTOs for creating quizzes and questions
 export type CreateQuizInput = {

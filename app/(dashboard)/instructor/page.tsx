@@ -94,7 +94,18 @@ export default function InstructorDashboardPage() {
 
   return (
     <div className="mx-auto space-y-6 pb-10">
-      <WelcomeBanner />
+      <div className="bg-white/60 backdrop-blur-xl p-8 rounded-[2rem] border border-white shadow-sm transition-all hover:shadow-md">
+        <h1 className="text-3xl font-bold tracking-tight"> 
+          {/* Changed from text-5xl to text-3xl and font-extrabold to font-bold */}
+          <span className="bg-gradient-to-r from-purple-700 via-purple-600 to-blue-500 bg-clip-text text-transparent">
+            Hello, INstructor!
+          </span>
+        </h1>
+        <p className="text-slate-500 mt-2 text-base font-medium max-w-xl leading-relaxed">
+          {/* Changed mt-4 to mt-2, text-lg to text-base, and max-w-2xl to max-w-xl */}
+          Welcome back to the MindStack Panel. Monitor your courses&apos;s growth, manage courses all in one place.
+        </p>
+      </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <StatsCard

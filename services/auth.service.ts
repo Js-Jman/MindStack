@@ -18,7 +18,7 @@
 import { compare, hash } from "bcryptjs";
 import { signToken } from "@/lib/jwt";
 import * as userRepository from "@/repositories/user.repository";
-import { User, Roles, CreateUserInput } from "@/types/user";
+import { User, Roles } from "@/types/user";
 
 export type SignInResponse = {
   user: Pick<User, 'id' | 'name' | 'email' | 'role'>;

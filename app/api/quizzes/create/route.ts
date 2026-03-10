@@ -7,7 +7,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
-import { Role } from "@prisma/client";
 
 export async function POST(request: Request) {
   try {
@@ -22,12 +21,12 @@ export async function POST(request: Request) {
       select: { role: true, deletedAt: true },
     });
 
-    if (!user || user.deletedAt || user.role !== Role.INSTRUCTOR) {
+    if (!user || user.deletedAt || user.role !== "INSTRUCTOR") {
       return NextResponse.json({ error: "Not authorized" }, { status: 403 });
     }
 
     const body = await request.json();
-    const { courseId, title, lessonId, order } = body;
+    const { courseId, title, lessonId } = body;
 
     if (!courseId || !title) {
       return NextResponse.json(

@@ -13,8 +13,32 @@
  */
 
 import { prisma } from "@/lib/db";
-import { Prisma, CourseAssignment, CourseEnrollment, CourseProgress } from "@prisma/client";
 import { CreateCourseInput, UpdateCourseInput } from "@/types/course";
+
+type CourseAssignment = {
+  id: number;
+  title?: string;
+  description?: string | null;
+  dueDate?: Date | null;
+};
+
+type CourseEnrollment = {
+  id: number;
+  courseId: number;
+  userId: number;
+  status: string;
+  enrolledAt: Date;
+  completedAt?: Date | null;
+};
+
+type CourseProgress = {
+  id: number;
+  courseId: number;
+  userId: number;
+  status: string;
+  completionPercentage: number | { toString(): string };
+  updatedAt?: Date;
+};
 
 /**
  * Standard fields to select for instructor information
@@ -82,7 +106,7 @@ type EnrollmentWithCourse = {
     title: string;
     description: string;
     thumbnailUrl?: string | null;
-    price?: number | Prisma.Decimal | null;
+    price?: number | null;
     introVideoUrl?: string | null;
     isPublished: boolean;
     createdAt: Date;
@@ -111,7 +135,8 @@ type EnrollmentWithCourse = {
  */
 function withLessonCount<T extends CourseLikeWithSections>(course: T) {
   const lessonCount = course.sections?.reduce(
-    (sum, section) => sum + (section.lessons?.length || 0),
+    (sum: number, section: NonNullable<T["sections"]>[number]) =>
+      sum + (section.lessons?.length || 0),
     0,
   );
 
@@ -144,7 +169,11 @@ export async function findAll(): Promise<CourseRepositoryResult[]> {
     },
   });
 
-  return courses.map(withLessonCount).map(course => ({
+  const coursesWithLessonCount = courses.map((course: (typeof courses)[number]) =>
+    withLessonCount(course),
+  );
+
+  return coursesWithLessonCount.map((course: (typeof coursesWithLessonCount)[number]) => ({
     ...course,
     price: course.price ? Number(course.price) : null,
   })) as CourseRepositoryResult[];
@@ -185,7 +214,9 @@ export async function findAllWithEnrichment(currentUserId: number): Promise<Arra
     where: { userId: currentUserId },
     select: { courseId: true },
   });
-  enrollments.forEach((e) => enrollmentMap.set(e.courseId, true));
+  enrollments.forEach((e: (typeof enrollments)[number]) =>
+    enrollmentMap.set(e.courseId, true),
+  );
 
   // Step 3: Get this student's progress in all courses (efficient batch query)
   const progressMap = new Map<number, { completionPercentage: number; status: string }>();
@@ -193,7 +224,7 @@ export async function findAllWithEnrichment(currentUserId: number): Promise<Arra
     where: { userId: currentUserId },
     select: { courseId: true, completionPercentage: true, status: true },
   });
-  progressRecords.forEach((p) =>
+  progressRecords.forEach((p: (typeof progressRecords)[number]) =>
     progressMap.set(p.courseId, {
       completionPercentage: Number(p.completionPercentage),
       status: p.status,
@@ -201,9 +232,9 @@ export async function findAllWithEnrichment(currentUserId: number): Promise<Arra
   );
 
   // Step 4: Enrich courses with student-specific data
-  return courses.map((course) => {
+  return courses.map((course: (typeof courses)[number]) => {
     const lessonCount = course.sections.reduce(
-      (acc, s) => acc + s.lessons.length,
+      (acc: number, s: (typeof course.sections)[number]) => acc + s.lessons.length,
       0,
     );
 
@@ -411,9 +442,15 @@ export async function searchCourses(query: string): Promise<CourseRepositoryResu
   });
 
   // convert Decimal price values to number and cast to repository result type
-  return courses
-    .map(withLessonCount)
-    .map(c => ({ ...c, price: c.price ? Number(c.price) : null })) as CourseRepositoryResult[];
+  const coursesWithLessonCount = courses.map((course: (typeof courses)[number]) =>
+    withLessonCount(course),
+  );
+
+  return coursesWithLessonCount
+    .map((course: (typeof coursesWithLessonCount)[number]) => ({
+      ...course,
+      price: course.price ? Number(course.price) : null,
+    })) as CourseRepositoryResult[];
 }
 
 /**
@@ -465,7 +502,9 @@ export async function searchCoursesWithEnrichment(
     where: { userId: currentUserId },
     select: { courseId: true },
   });
-  enrollments.forEach((e) => enrollmentMap.set(e.courseId, true));
+  enrollments.forEach((e: (typeof enrollments)[number]) =>
+    enrollmentMap.set(e.courseId, true),
+  );
 
   // Step 3: Get student's progress (batch query)
   const progressMap = new Map<number, { completionPercentage: number; status: string }>();
@@ -473,7 +512,7 @@ export async function searchCoursesWithEnrichment(
     where: { userId: currentUserId },
     select: { courseId: true, completionPercentage: true, status: true },
   });
-  progressRecords.forEach((p) =>
+  progressRecords.forEach((p: (typeof progressRecords)[number]) =>
     progressMap.set(p.courseId, {
       completionPercentage: Number(p.completionPercentage),
       status: p.status,
@@ -481,9 +520,9 @@ export async function searchCoursesWithEnrichment(
   );
 
   // Step 4: Enrich results
-  return courses.map((course) => {
+  return courses.map((course: (typeof courses)[number]) => {
     const lessonCount = course.sections.reduce(
-      (acc, s) => acc + s.lessons.length,
+      (acc: number, s: (typeof course.sections)[number]) => acc + s.lessons.length,
       0,
     );
 
@@ -539,7 +578,11 @@ export async function findRecentCoursesByInstructor(instructorId: number, limit:
     },
   });
 
-  return courses.map(withLessonCount).map(course => ({
+  const coursesWithLessonCount = courses.map((course: (typeof courses)[number]) =>
+    withLessonCount(course),
+  );
+
+  return coursesWithLessonCount.map((course: (typeof coursesWithLessonCount)[number]) => ({
     ...course,
     price: course.price ? Number(course.price) : null,
   })) as CourseRepositoryResult[];

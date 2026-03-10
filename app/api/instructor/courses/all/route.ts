@@ -13,7 +13,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
-import { Role } from "@prisma/client";
 
 async function resolveInstructorIdFromSession() {
   const session = await getSession();
@@ -25,14 +24,14 @@ async function resolveInstructorIdFromSession() {
   });
 
   // Check if user exists, is not deleted, and is an instructor
-  if (user && !user.deletedAt && user.role === Role.INSTRUCTOR) {
+  if (user && !user.deletedAt && user.role === "INSTRUCTOR") {
     return user.id;
   }
 
   return null;
 }
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const instructorId = await resolveInstructorIdFromSession();
     if (!instructorId) {
@@ -64,7 +63,7 @@ export async function GET(req: Request) {
     });
 
     // Format the response
-    const formattedCourses = courses.map((course) => ({
+    const formattedCourses = courses.map((course: (typeof courses)[number]) => ({
       id: course.id,
       title: course.title,
       description: course.description,
@@ -72,7 +71,10 @@ export async function GET(req: Request) {
       isPublished: course.isPublished,
       isFree: !course.price || Number(course.price) === 0,
       enrollmentsCount: course._count.enrollments,
-      lessonsCount: course.sections.reduce((sum, section) => sum + section._count.lessons, 0),
+      lessonsCount: course.sections.reduce(
+        (sum: number, section: (typeof course.sections)[number]) => sum + section._count.lessons,
+        0,
+      ),
       createdAt: course.createdAt,
       updatedAt: course.updatedAt,
     }));

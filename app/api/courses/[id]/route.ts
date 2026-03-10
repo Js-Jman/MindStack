@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
-import { Role } from "@prisma/client";
 import { updateCourse, deleteCourse } from "@/services/course.service";
 
 // helper to extract numeric id from request URL
@@ -61,7 +60,7 @@ async function authorizeInstructor(courseId: number) {
   });
   if (!user) return false;
 
-  if (user.role === Role.ADMIN) return true;
+  if (user.role === "ADMIN") return true;
 
   const course = await prisma.course.findUnique({
     where: { id: courseId },

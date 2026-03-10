@@ -305,3 +305,79 @@ This project was collaboratively built by a dedicated team of developers.
 ---
 
 ⭐ Built with collaboration, clean architecture, and design principles.
+
+# MindStack Azure VM + Docker Basic Setup
+
+This is a baseline setup for:
+- Next.js frontend + backend (API routes) in a single container
+- MySQL in a single container
+- Private IP connection from app to DB inside Docker network
+- Azure VM provisioning with Terraform
+
+## 1. Local prep
+
+1. Copy `env.production.example` to `.env.production`.
+2. Set strong values for:
+   - `MYSQL_ROOT_PASSWORD`
+   - `MYSQL_PASSWORD`
+   - `NEXTAUTH_SECRET`
+3. Keep `MYSQL_PRIVATE_IP=172.30.0.10` unless you also change `docker-compose.yml` network config.
+
+## 2. Provision Azure resources with Terraform
+
+```bash
+cd deployment/terraform
+terraform init
+terraform plan -var-file="terraform.tfvars"
+terraform apply -var-file="terraform.tfvars"
+```
+
+After apply:
+
+```bash
+terraform output vm_public_ip
+terraform output vm_private_ip
+terraform output ssh_command
+```
+
+## 3. Copy project to VM and run containers
+
+On your local machine:
+
+```bash
+scp -r . azureuser@<VM_PUBLIC_IP>:~/MindStack
+```
+
+On the VM:
+
+```bash
+cd ~/MindStack
+cp env.production.example .env.production
+# edit .env.production with secure values
+sudo docker compose --env-file .env.production up -d --build
+```
+
+## 4. Run Prisma migrations and seed data
+
+```bash
+sudo docker compose --env-file .env.production exec app npx prisma migrate deploy
+sudo docker compose --env-file .env.production exec app npm run prisma:seed
+```
+
+## 5. Verify app + DB connectivity
+
+- App: `http://<VM_PUBLIC_IP>:3000`
+- DB is private to Docker network at `172.30.0.10:3306`
+- DB is not publicly exposed because Compose uses `expose`, not host `ports`
+
+## 6. Production hardening checklist
+
+- Put Nginx or Caddy in front and enable HTTPS.
+- Restrict NSG SSH source to your office/home IP.
+- Move secrets to Azure Key Vault.
+- Add backup strategy for `mysql_data` volume.
+
+## Notes
+
+- This is a basic single-VM deployment intended for initial setup.
+- For high availability, move MySQL to managed Azure Database for MySQL in a later phase.

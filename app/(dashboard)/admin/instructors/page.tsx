@@ -2,6 +2,8 @@ import { prisma } from "@/lib/db";
 import { UsersTable } from "@/components/admin/UsersTable";
 import type { UserTableRow } from "@/types/admin";
 
+export const dynamic = "force-dynamic";
+
 type InstructorUser = {
   id: number;
   name: string;

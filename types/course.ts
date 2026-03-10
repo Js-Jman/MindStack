@@ -1,13 +1,52 @@
-import {
-  Prisma,
-  User,
-  CourseAssignment,
-  CourseEnrollment,
-  CourseSection,
-  CourseProgress,
-  Lesson,
-  LessonProgress,
-} from "@prisma/client";
+type UserSummary = {
+  id: number;
+  name: string;
+  email: string;
+};
+
+type CourseAssignment = {
+  id: number;
+  title?: string;
+  description?: string | null;
+  dueDate?: Date | null;
+};
+
+type CourseEnrollment = {
+  id: number;
+  userId: number;
+  courseId: number;
+  status: "ACTIVE" | "COMPLETED" | "DROPPED";
+  enrolledAt: Date;
+  completedAt?: Date | null;
+};
+
+type CourseProgress = {
+  id: number;
+  userId: number;
+  courseId: number;
+  status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
+  completionPercentage: number | { toString(): string };
+  updatedAt?: Date;
+};
+
+type LessonProgress = {
+  id?: number;
+  status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
+  completedAt?: Date | null;
+};
+
+type Lesson = {
+  id: number;
+  title?: string;
+  lessonOrder?: number;
+};
+
+type CourseSection = {
+  id: number;
+  title: string;
+  sectionOrder: number;
+  courseId: number;
+};
 
 export type LessonWithProgress = Lesson & {
   progress: LessonProgress[];
@@ -24,19 +63,19 @@ export type Course = {
   title: string;
   description: string;
   thumbnailUrl?: string | null;
-  price?: number | Prisma.Decimal | null;
+  price?: number | null;
   introVideoUrl?: string | null;
   isPublished: boolean;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date | null;
 
-  instructor?: Pick<User, "name">;
+  instructor?: Pick<UserSummary, "name">;
   sections: SectionWithLessons[]; 
   courseProgress: CourseProgress[];
   assignments?: CourseAssignment[];
   enrollments?: (CourseEnrollment & {
-    user?: Pick<User, "id" | "name" | "email">;
+    user?: Pick<UserSummary, "id" | "name" | "email">;
   })[];
 
 

@@ -20,7 +20,6 @@ import {
 } from "@/services/course.service";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { Role } from "@prisma/client";
 
 /**
  * Resolve instructor ID from session for course creation
@@ -36,7 +35,7 @@ async function resolveInstructorIdFromSession() {
   });
 
   // Check if user exists, is not deleted, and is an instructor
-  if (user && !user.deletedAt && user.role === Role.INSTRUCTOR) {
+  if (user && !user.deletedAt && user.role === "INSTRUCTOR") {
     return user.id;
   }
 
@@ -119,7 +118,7 @@ export async function GET(request: Request) {
           : null;
 
         const lessonsCount = sections.reduce(
-          (acc, s) => acc + s.lessons.length,
+          (acc: number, s: { lessons: unknown[] }) => acc + s.lessons.length,
           0,
         );
 

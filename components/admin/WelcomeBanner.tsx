@@ -9,7 +9,7 @@ export const WelcomeBanner = () => {
       </h1>
       <p className="text-slate-500 mt-2 text-base font-medium max-w-xl leading-relaxed">
         {/* Changed mt-4 to mt-2, text-lg to text-base, and max-w-2xl to max-w-xl */}
-        Welcome back to the MindStack control center. Monitor your platform&apos;s growth, manage users, and handle support requests all in one place.
+        Welcome back to the MindStack control center. Monitor your platform&apos;s growth, manage users all in one place.
       </p>
     </div>
   );
