@@ -34,7 +34,7 @@ export default async function UsersPage() {
     status: user.isFlagged ? "SUSPENDED" : "ACTIVE",
     isFlagged: user.isFlagged,
     courseCount: user._count?.enrollments || 0,
-    createdAt: user.createdAt,
+    createdAt: user.createdAt.toISOString().split("T")[0],
   }));
 
   return (

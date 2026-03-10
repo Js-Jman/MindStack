@@ -85,9 +85,9 @@ export default function SigninPage() {
               </button>
             </div>
             <div className="flex justify-end pt-0.5">
-              <Link href="/forgot-password" className="text-xs text-primary hover:underline">
+              {/* <Link href="/forgot-password" className="text-xs text-primary hover:underline">
                 Forgot password?
-              </Link>
+              </Link> */}
             </div>
           </div>
 

@@ -17,17 +17,17 @@ export const UsersTable = ({
   courseColumnLabel = "Courses Enrolled",
 }: UsersTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [rows, setRows] = useState<UserTableRow[]>(data);
+  const [rows, setRows] = useState<UserTableRow[]>(data ?? []);
   const [selectedProfile, setSelectedProfile] = useState<UserProfileResponse | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
   const [busyUserId, setBusyUserId] = useState<number | null>(null);
 
   useEffect(() => {
-    setRows(data);
+    setRows(data ?? []);
   }, [data]);
 
-  const filteredUsers = rows.filter((user) =>
+  const filteredUsers = (rows ?? []).filter((user) =>
     user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -98,7 +98,7 @@ export const UsersTable = ({
     }
   };
 
-  const hasData = filteredUsers.length > 0;
+  const hasData = (filteredUsers ?? []).length > 0;
 
   return (
     <div className="w-full bg-white rounded-[2.5rem] border shadow-sm overflow-hidden">
@@ -174,7 +174,7 @@ export const UsersTable = ({
                     {user.courseCount || 0} {user.courseCount === 1 ? "Course" : "Courses"}
                   </td>
                   <td className="px-8 py-5 text-sm text-slate-500">
-                    {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "-"}
+                    {user.createdAt ? new Date(user.createdAt).toISOString().split("T")[0] : "-"}
                   </td>
                   <td className="px-8 py-5 text-right">
                     <div className="inline-flex items-center gap-2">
@@ -273,7 +273,7 @@ export const UsersTable = ({
                 {selectedProfile.role === "INSTRUCTOR" ? (
                   <div>
                     <h4 className="text-sm font-semibold text-slate-800 mb-2">Courses Handled</h4>
-                    {selectedProfile.courses.length === 0 ? (
+                    {(selectedProfile.courses ?? []).length === 0 ? (
                       <p className="text-sm text-slate-500">No courses assigned.</p>
                     ) : (
                       <div className="space-y-2">
@@ -291,7 +291,7 @@ export const UsersTable = ({
                 ) : (
                   <div>
                     <h4 className="text-sm font-semibold text-slate-800 mb-2">Enrollments</h4>
-                    {selectedProfile.enrollments.length === 0 ? (
+                    {(selectedProfile.enrollments ?? []).length === 0 ? (
                       <p className="text-sm text-slate-500">No enrollments yet.</p>
                     ) : (
                       <div className="space-y-2">

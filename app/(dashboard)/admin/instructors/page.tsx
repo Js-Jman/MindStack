@@ -31,7 +31,7 @@ export default async function InstructorsPage() {
     status: instructor.isFlagged ? "SUSPENDED" : "ACTIVE",
     isFlagged: instructor.isFlagged,
     courseCount: instructor._count.courses,
-    createdAt: instructor.createdAt,
+    createdAt: instructor.createdAt.toISOString().split("T")[0],
   }));
 
   return (
