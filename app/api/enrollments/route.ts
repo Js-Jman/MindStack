@@ -36,7 +36,7 @@ async function resolveStudentIdFromSession() {
   return null;
 }
 
-export async function GET(req: Request) {
+export async function GET() {
   const studentId = await resolveStudentIdFromSession();
   if (!studentId) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });

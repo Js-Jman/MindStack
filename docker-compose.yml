@@ -1,44 +1,53 @@
-version: "3.9"
-
 services:
   app:
-    build: .
-    container_name: nextjs-app
-    ports:
-      - "3000:3000"
-    env_file:
-      - .env
+    build:
+      context: .
+      dockerfile: dockerfile
+    image: abi1012/mindstack-app
+    container_name: mindstack-app
+    restart: unless-stopped
     depends_on:
       mysql:
         condition: service_healthy
-    volumes:
-      - .:/app
-      - /app/node_modules
-    command: >
-      sh -c "
-      npx prisma generate &&
-      npx prisma migrate deploy &&
-      npm run dev
-      "
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: mysql://${MYSQL_USER:-mindstack_user}:${MYSQL_PASSWORD:-mindstack_secure_2026}@${MYSQL_PRIVATE_IP:-172.30.0.10}:3306/${MYSQL_DATABASE:-mindstack}
+    ports:
+      - "3000:3000"
+    networks:
+      mindstack_net:
+        ipv4_address: 172.30.0.20
 
   mysql:
-    image: mysql:8
-    container_name: mysql-db
-    restart: always
+    image: mysql:8.0
+    container_name: mindstack-mysql
+    restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: mydb
-      MYSQL_USER: user
-      MYSQL_PASSWORD: userpassword
-    ports:
-      - "3306:3306"
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mindstack_root_2026}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-mindstack}
+      MYSQL_USER: ${MYSQL_USER:-mindstack_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-mindstack_secure_2026}
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u$$MYSQL_USER -p$$MYSQL_PASSWORD || exit 1"]
+      interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 20s
+    expose:
+      - "3306"
+    networks:
+      mindstack_net:
+        ipv4_address: ${MYSQL_PRIVATE_IP:-172.30.0.10}
 
 volumes:
   mysql_data:
+
+networks:
+  mindstack_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24

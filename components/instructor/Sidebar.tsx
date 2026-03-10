@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutDashboard, BookOpen, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { LayoutDashboard, BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";

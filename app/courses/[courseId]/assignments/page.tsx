@@ -70,9 +70,14 @@ export default async function AssignmentsPage({
     return notFound();
   }
 
-  const allLessons = course.sections.flatMap((s) => s.lessons);
+  type CourseSection = (typeof course.sections)[number];
+  type CourseLesson = CourseSection["lessons"][number];
+
+  const allLessons: CourseLesson[] = course.sections.flatMap(
+    (s: CourseSection) => s.lessons,
+  );
   const selectedLesson = lessonIdNum
-    ? allLessons.find((l) => l.id === lessonIdNum)
+    ? allLessons.find((l: CourseLesson) => l.id === lessonIdNum)
     : null;
 
   return (
@@ -103,7 +108,7 @@ export default async function AssignmentsPage({
         {course.assignments.length > 0 && (
           <section className="space-y-4">
             <h3 className="text-lg font-bold text-gray-900">Course Assignments</h3>
-            {course.assignments.map((assignment) => (
+            {course.assignments.map((assignment: (typeof course.assignments)[number]) => (
               <AssignmentSubmissionForm
                 key={assignment.id}
                 assignmentId={assignment.id}

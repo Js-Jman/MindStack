@@ -39,16 +39,16 @@ export async function GET(req: NextRequest) {
   });
 
   return NextResponse.json(
-    quizzes.map((quiz) => ({
+    quizzes.map((quiz: (typeof quizzes)[number]) => ({
       id: quiz.id,
       title: quiz.title,
       lessonId: quiz.lesson.id,
       lessonTitle: quiz.lesson.title,
-      questions: quiz.questions.map((q) => ({
+      questions: quiz.questions.map((q: (typeof quiz.questions)[number]) => ({
         id: q.id,
         questionText: q.questionText,
-        options: q.options.map(o => ({ id: o.id, optionText: o.optionText })),
-        correctOptionId: q.options.find(o => o.isCorrect)?.id ?? null,
+        options: q.options.map((o: (typeof q.options)[number]) => ({ id: o.id, optionText: o.optionText })),
+        correctOptionId: q.options.find((o: (typeof q.options)[number]) => o.isCorrect)?.id ?? null,
       })),
     })),
   );
@@ -105,14 +105,14 @@ export async function POST(req: NextRequest) {
 
   for (const q of questions) {
     const selectedOptionId = answerMap.get(q.id) ?? null;
-    const correctOption = q.options.find((o) => o.isCorrect);
+    const correctOption = q.options.find((o: (typeof q.options)[number]) => o.isCorrect);
 
     if (!correctOption) {
       continue;
     }
 
     const selectedOption = selectedOptionId
-      ? q.options.find((o) => o.id === selectedOptionId)
+      ? q.options.find((o: (typeof q.options)[number]) => o.id === selectedOptionId)
       : null;
     const isCorrect = selectedOptionId === correctOption.id;
 

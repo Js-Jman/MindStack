@@ -219,7 +219,7 @@ export function CourseWizard({ courseId }: CourseWizardProps) {
         });
 
         if (!quizResponse.ok) {
-          const txt = await quizResponse.text();
+          await quizResponse.text();
           continue;
         }
 
@@ -239,7 +239,7 @@ export function CourseWizard({ courseId }: CourseWizardProps) {
             }),
           });
           if (!questionResponse.ok) {
-            const txt = await questionResponse.text();
+            await questionResponse.text();
           }
         }
       }

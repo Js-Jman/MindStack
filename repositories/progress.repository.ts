@@ -11,7 +11,28 @@
  */
 
 import { prisma } from "@/lib/db";
-import { ProgressStatus, EnrollmentStatus } from "@prisma/client";
+
+type ProgressStatusValue = "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
+type EnrollmentStatusValue = "ACTIVE" | "COMPLETED" | "DROPPED";
+
+const ProgressStatus: Record<ProgressStatusValue, ProgressStatusValue> = {
+  NOT_STARTED: "NOT_STARTED",
+  IN_PROGRESS: "IN_PROGRESS",
+  COMPLETED: "COMPLETED",
+};
+
+const EnrollmentStatus: Record<EnrollmentStatusValue, EnrollmentStatusValue> = {
+  ACTIVE: "ACTIVE",
+  COMPLETED: "COMPLETED",
+  DROPPED: "DROPPED",
+};
+
+type TransactionClient = {
+  lesson: typeof prisma.lesson;
+  courseEnrollment: typeof prisma.courseEnrollment;
+  lessonProgress: typeof prisma.lessonProgress;
+  courseProgress: typeof prisma.courseProgress;
+};
 
 /**
  * Type definition for the result of marking a lesson as done
@@ -20,7 +41,7 @@ import { ProgressStatus, EnrollmentStatus } from "@prisma/client";
 export type MarkLessonDoneResult = {
   done: boolean;                  // Whether lesson is marked as complete
   completionPercentage: number;   // Course completion percentage (0-100, rounded to 2 decimals)
-  status: ProgressStatus;         // Course status: NOT_STARTED | IN_PROGRESS | COMPLETED
+  status: ProgressStatusValue;    // Course status: NOT_STARTED | IN_PROGRESS | COMPLETED
   completedCount: number;         // Number of completed lessons in the course
   totalCount: number;             // Total lessons in the course
   courseId: number;               // ID of the course being tracked
@@ -52,7 +73,7 @@ export async function markLessonDone(
 ): Promise<MarkLessonDoneResult> {
   const now = new Date();
 
-  return prisma.$transaction(async (tx) => {
+  return prisma.$transaction(async (tx: TransactionClient) => {
     // Step 1: Fetch lesson with its section and course (validate existence)
     // Exclude soft-deleted records
     const lesson = await tx.lesson.findUnique({
@@ -277,11 +298,11 @@ export async function getProgressByStudent(studentId: number) {
   });
 
   const progressMap = new Map<number, (typeof progressData)[number]>();
-  progressData.forEach((p) => {
+  progressData.forEach((p: (typeof progressData)[number]) => {
     progressMap.set(p.courseId, p);
   });
 
-  return enrollments.map((e) => {
+  return enrollments.map((e: (typeof enrollments)[number]) => {
     const cp = progressMap.get(e.courseId);
     return {
       courseId: e.courseId,

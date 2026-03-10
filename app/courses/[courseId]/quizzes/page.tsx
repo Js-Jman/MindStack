@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
@@ -105,7 +105,7 @@ export default function Page() {
     }, 1000);
 
     return () => window.clearInterval(timer);
-  }, [activeQuiz?.id, loading, result]);
+  }, [activeQuiz, loading, result]);
 
   const mmss = useMemo(() => {
     const mm = Math.floor(secondsLeft / 60)
@@ -115,7 +115,7 @@ export default function Page() {
     return `${mm}:${ss}`;
   }, [secondsLeft]);
 
-  async function submitQuiz() {
+  const submitQuiz = useCallback(async () => {
     if (!activeQuiz || submitting || result) return;
 
     setSubmitting(true);
@@ -161,13 +161,13 @@ export default function Page() {
     } finally {
       setSubmitting(false);
     }
-  }
+  }, [activeQuiz, answers, result, submitting]);
 
   useEffect(() => {
     if (secondsLeft === 0 && activeQuiz && !result) {
       void submitQuiz();
     }
-  }, [secondsLeft, activeQuiz, result]);
+  }, [secondsLeft, activeQuiz, result, submitQuiz]);
 
   function selectOption(questionId: number, optionId: number) {
     if (result) return;

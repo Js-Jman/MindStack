@@ -10,7 +10,6 @@ import {
   ChevronLeft,
   ChevronRight,
   PlayCircle,
-  FileText,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Layout,
   HelpCircle,
@@ -47,8 +46,16 @@ export default async function LessonPage({ params }: Props) {
   if (!lessonRecord) return notFound();
  
   const course = lessonRecord.section.course;
-  const flatLessons = course.sections.flatMap((s) => s.lessons);
-  const currentIndex = flatLessons.findIndex((l) => l.id === lessonRecord.id);
+  type CourseSection = (typeof course.sections)[number];
+  type CourseLesson = CourseSection["lessons"][number];
+  type LessonContent = (typeof lessonRecord.contents)[number];
+
+  const flatLessons: CourseLesson[] = course.sections.flatMap(
+    (s: CourseSection) => s.lessons,
+  );
+  const currentIndex = flatLessons.findIndex(
+    (l: CourseLesson) => l.id === lessonRecord.id,
+  );
  
   const prevLesson = currentIndex > 0 ? flatLessons[currentIndex - 1] : null;
   const nextLesson =
@@ -57,10 +64,10 @@ export default async function LessonPage({ params }: Props) {
       : null;
  
   const videoContent = lessonRecord.contents.find(
-    (c) => c.contentType === "VIDEO",
+    (c: LessonContent) => c.contentType === "VIDEO",
   );
   const textContent = lessonRecord.contents.find(
-    (c) => c.contentType === "TEXT",
+    (c: LessonContent) => c.contentType === "TEXT",
   );
  
   const progressData = course.courseProgress?.[0];
@@ -70,7 +77,7 @@ export default async function LessonPage({ params }: Props) {
  
   const totalLessonsCount = flatLessons.length;
   const completedLessonsCount = flatLessons.filter(
-    (l) =>
+    (l: CourseLesson) =>
       l.progress &&
       l.progress.length > 0 &&
       l.progress[0].status === "COMPLETED",

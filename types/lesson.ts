@@ -1,7 +1,5 @@
-import { Prisma } from "@prisma/client";
-
 export const lessonWithCourseInclude = (userId: number) =>
-  Prisma.validator<Prisma.LessonInclude>()({
+  ({
     contents: { orderBy: { contentOrder: "asc" } },
     progress: { where: { userId } },
     section: {
@@ -24,8 +22,49 @@ export const lessonWithCourseInclude = (userId: number) =>
         },
       },
     },
-  });
+  } as const);
 
-export type FullLessonData = Prisma.LessonGetPayload<{
-  include: ReturnType<typeof lessonWithCourseInclude>;
-}>;
+export type LessonProgressRecord = {
+  status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
+  completedAt?: Date | null;
+};
+
+export type LessonContentRecord = {
+  contentType: "TEXT" | "IMAGE" | "VIDEO";
+  contentBody: string;
+  contentOrder?: number;
+};
+
+export type CourseLessonRecord = {
+  id: number;
+  title: string;
+  lessonOrder: number;
+  progress: LessonProgressRecord[];
+};
+
+export type CourseSectionRecord = {
+  id: number;
+  title: string;
+  sectionOrder: number;
+  lessons: CourseLessonRecord[];
+};
+
+export type CourseProgressRecord = {
+  completionPercentage: number | { toString(): string };
+  status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
+};
+
+export type FullLessonData = {
+  id: number;
+  title: string;
+  contents: LessonContentRecord[];
+  progress: LessonProgressRecord[];
+  section: {
+    course: {
+      id: number;
+      title: string;
+      sections: CourseSectionRecord[];
+      courseProgress: CourseProgressRecord[];
+    };
+  };
+};

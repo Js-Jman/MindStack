@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
-import { Role } from "@prisma/client";
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -16,7 +15,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       select: { role: true, deletedAt: true },
     });
 
-    if (!user || user.deletedAt || user.role !== Role.INSTRUCTOR) {
+    if (!user || user.deletedAt || user.role !== "INSTRUCTOR") {
       return NextResponse.json({ error: "Not authorized" }, { status: 403 });
     }
 
