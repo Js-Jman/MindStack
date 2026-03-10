@@ -6,12 +6,12 @@ services:
     image: mindstack-app
     container_name: mindstack-app
     restart: unless-stopped
-    command: sh -c "npx prisma migrate deploy && npx prisma db seed && npm run start"
     depends_on:
       mysql:
         condition: service_healthy
     environment:
       NODE_ENV: production
+      NEXTAUTH_URL: http://52.237.120.94:3000
       PORT: 3000
       DATABASE_URL: mysql://${MYSQL_USER:-mindstack_user}:${MYSQL_PASSWORD:-mindstack_secure_2026}@${MYSQL_PRIVATE_IP:-172.30.0.10}:3306/${MYSQL_DATABASE:-mindstack}
     ports:

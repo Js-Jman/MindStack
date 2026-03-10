@@ -25,7 +25,7 @@ export async function GET(): Promise<NextResponse<AuthMeResponse | { error: stri
       const res = NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       res.cookies.set(COOKIE_NAME, "", {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: false,
         sameSite: "lax",
         path: "/",
         maxAge: 0,
