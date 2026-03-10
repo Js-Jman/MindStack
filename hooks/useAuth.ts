@@ -49,11 +49,11 @@ export function useAuth() {
 
     // Use full-page navigation to avoid race conditions with HttpOnly cookie.
     if (data.user.role === "ADMIN") {
-      window.location.href = "/admin";
+      router.push("/admin");
     } else if (data.user.role === "INSTRUCTOR") {
-      window.location.href = "/instructor";
+      router.push("/instructor");
     } else {
-      window.location.href = "/student";
+      router.push("/student");
     }
 
     return data.user as AuthUser;
